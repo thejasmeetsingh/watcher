@@ -18,4 +18,4 @@ RUN go get -d -v ./...
 
 EXPOSE 3000
 
-ENTRYPOINT [ "./entrypoint.sh" ]
+CMD [ "go", "run", "main.go" ]
