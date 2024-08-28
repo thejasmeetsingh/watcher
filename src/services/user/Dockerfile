@@ -12,8 +12,6 @@ WORKDIR /go/src/app
 
 COPY . .
 
-RUN chmod +x ./entrypoint.sh
-
 RUN go get -d -v ./...
 
 EXPOSE 3000
