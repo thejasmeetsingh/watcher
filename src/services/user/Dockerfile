@@ -10,10 +10,13 @@ RUN curl -fsSL https://raw.githubusercontent.com/pressly/goose/master/install.sh
 
 WORKDIR /go/src/app
 
+COPY ./entrypoint.sh .
+RUN chmod +x ./entrypoint.sh
+
 COPY . .
 
 RUN go get -d -v ./...
 
 EXPOSE 3000
 
-CMD [ "go", "run", "main.go" ]
+ENTRYPOINT [ "sh", "./entrypoint.sh" ]
