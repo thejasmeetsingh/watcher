@@ -5,6 +5,8 @@ import (
 	"os"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/middleware/logger"
+	"github.com/gofiber/fiber/v2/middleware/requestid"
 	"github.com/jackc/pgx/v5"
 	log "github.com/sirupsen/logrus"
 	"github.com/thejasmeetsingh/watcher/src/services/user/api"
@@ -12,7 +14,11 @@ import (
 )
 
 func main() {
-	app := fiber.New()
+	app := fiber.New(fiber.Config{})
+	app.Use(requestid.New())
+	app.Use(logger.New(logger.Config{
+		Format: "[${ip}]:${port} ${status} - ${method} ${path}\n",
+	}))
 
 	conn, err := pgx.Connect(context.Background(), os.Getenv("DB_URL"))
 	if err != nil {
