@@ -30,12 +30,24 @@ func (apiCfg *APIConfig) Signup(ctx *fiber.Ctx) error {
 
 	params := new(Signup)
 
+	// Parse the request data
 	if err := ctx.BodyParser(params); err != nil {
-		return err
+		log.Errorln(err)
+		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"message": "Invalid request data format",
+		})
+	}
+
+	// Validate the request data
+	err := validateRequestData(ctx.Context(), params)
+	if err != nil {
+		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"message": err,
+		})
 	}
 
 	// Check if user with the given email ID already exists
-	_, err := getUserByEmail(apiCfg, ctx.Context(), params.Email)
+	_, err = getUserByEmail(apiCfg, ctx.Context(), params.Email)
 	if err == nil {
 		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 			"message": "Email already exists",
