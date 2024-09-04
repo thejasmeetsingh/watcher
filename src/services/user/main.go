@@ -5,6 +5,7 @@ import (
 	"os"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/middleware/keyauth"
 	"github.com/gofiber/fiber/v2/middleware/logger"
 	"github.com/gofiber/fiber/v2/middleware/requestid"
 	"github.com/jackc/pgx/v5"
@@ -34,9 +35,15 @@ func main() {
 	app.Get("/", api.HealthCheck)
 	app.Post("/signup/", apiCfg.Signup)
 	app.Post("/login/", apiCfg.Login)
-	app.Patch("/profile/", apiCfg.UpdatePassword)
-	app.Put("/password/", apiCfg.UpdatePassword)
-	app.Delete("/delete/", apiCfg.DeleteProfile)
+
+	auth := app.Group("")
+	auth.Use(keyauth.New(keyauth.Config{
+		Validator: apiCfg.JwtAuth,
+	}))
+
+	auth.Patch("/profile/", apiCfg.UpdatePassword)
+	auth.Put("/password/", apiCfg.UpdatePassword)
+	auth.Delete("/delete/", apiCfg.DeleteProfile)
 
 	log.Fatalln(app.Listen(":3000"))
 }

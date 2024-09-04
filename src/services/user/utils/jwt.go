@@ -84,10 +84,10 @@ func GenerateTokens(userID string) (Tokens, error) {
 }
 
 // Verify the given token string is valid or not and return the respected token claim which contains the encoded data
-func VerifyToken(tokenString string) (*Claims, error) {
+func VerifyToken(token string) (*Claims, error) {
 	secretKey := getSecretKey()
 
-	token, err := jwt.ParseWithClaims(tokenString, &Claims{}, func(token *jwt.Token) (interface{}, error) {
+	_token, err := jwt.ParseWithClaims(token, &Claims{}, func(token *jwt.Token) (interface{}, error) {
 		return secretKey, nil
 	})
 
@@ -95,7 +95,7 @@ func VerifyToken(tokenString string) (*Claims, error) {
 		return nil, err
 	}
 
-	if claims, ok := token.Claims.(*Claims); ok && token.Valid {
+	if claims, ok := _token.Claims.(*Claims); ok && _token.Valid {
 		return claims, nil
 	}
 
