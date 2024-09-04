@@ -1,4 +1,4 @@
-package api
+package utils
 
 import (
 	"context"
@@ -24,7 +24,7 @@ func getCustomErrorMessage(field, tag string) string {
 	}
 }
 
-func validateRequestData(ctx context.Context, params interface{}) error {
+func ValidateRequestData(ctx context.Context, params interface{}) error {
 	validate := validator.New()
 
 	err := validate.StructCtx(ctx, params)
@@ -32,7 +32,7 @@ func validateRequestData(ctx context.Context, params interface{}) error {
 		if valiationErrors, ok := err.(validator.ValidationErrors); ok {
 			field := valiationErrors[0].Field()
 			tag := valiationErrors[0].Tag()
-			return fmt.Errorf("validation failed for field '%s': %s", field, getCustomErrorMessage(field, tag))
+			return fmt.Errorf("%s", getCustomErrorMessage(field, tag))
 		}
 		return fmt.Errorf("validation error: %s", err)
 	}

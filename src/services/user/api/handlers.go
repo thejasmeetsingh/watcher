@@ -4,6 +4,7 @@ import (
 	"github.com/gofiber/fiber/v2"
 	log "github.com/sirupsen/logrus"
 	"github.com/thejasmeetsingh/watcher/src/services/user/database"
+	"github.com/thejasmeetsingh/watcher/src/services/user/utils"
 )
 
 func getUserProfileData(user *database.User) fiber.Map {
@@ -39,10 +40,10 @@ func (apiCfg *APIConfig) Signup(ctx *fiber.Ctx) error {
 	}
 
 	// Validate the request data
-	err := validateRequestData(ctx.Context(), params)
+	err := utils.ValidateRequestData(ctx.Context(), params)
 	if err != nil {
 		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"message": err,
+			"message": err.Error(),
 		})
 	}
 
