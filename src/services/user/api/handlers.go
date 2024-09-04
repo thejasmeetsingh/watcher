@@ -55,6 +55,17 @@ func (apiCfg *APIConfig) Signup(ctx *fiber.Ctx) error {
 		})
 	}
 
+	// Generate password hash for storing in DB
+	password, err := utils.GetHashedPassword(params.Password)
+	if err != nil {
+		log.Errorln(err)
+		return ctx.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"message": "Something went wrong. Please try after some time",
+		})
+	}
+
+	params.Password = password
+
 	// Create user in DB
 	user, err := createUser(apiCfg, ctx.Context(), *params)
 	if err != nil {
@@ -64,25 +75,72 @@ func (apiCfg *APIConfig) Signup(ctx *fiber.Ctx) error {
 		})
 	}
 
+	// Generate Auth tokens
+	tokens, err := utils.GenerateTokens(user.ID.String())
+	if err != nil {
+		log.Errorln(err)
+		return ctx.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"message": "Something went wrong. Please try after some time",
+		})
+	}
+
 	return ctx.Status(fiber.StatusCreated).JSON(fiber.Map{
-		"message": "Create user account",
+		"message": "Account created successfully",
 		"data":    getUserProfileData(user),
+		"tokens":  tokens,
 	})
 }
 
 func (apiCfg *APIConfig) Login(ctx *fiber.Ctx) error {
 	ctx.Accepts("application/json")
 
-	var params Login
+	params := new(Login)
 
+	// Parse the request data
 	if err := ctx.BodyParser(params); err != nil {
-		return err
+		log.Errorln(err)
+		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"message": "Invalid request data format",
+		})
 	}
 
-	log.Infoln(params)
+	// Validate the request data
+	err := utils.ValidateRequestData(ctx.Context(), params)
+	if err != nil {
+		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"message": err.Error(),
+		})
+	}
+
+	// Check if user with the given email ID exists
+	user, err := getUserByEmail(apiCfg, ctx.Context(), params.Email)
+	if err != nil {
+		return ctx.Status(fiber.StatusForbidden).JSON(fiber.Map{
+			"message": "Email does not exists",
+		})
+	}
+
+	// Check the given password with hashed password stored in DB
+	match, err := utils.CheckPasswordValid(params.Password, user.Password)
+	if err != nil || !match {
+		return ctx.Status(fiber.StatusForbidden).JSON(fiber.Map{
+			"message": "Invalid login credentials",
+		})
+	}
+
+	// Generate Auth tokens
+	tokens, err := utils.GenerateTokens(user.ID.String())
+	if err != nil {
+		log.Errorln(err)
+		return ctx.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"message": "Something went wrong. Please try after some time",
+		})
+	}
 
 	return ctx.JSON(fiber.Map{
-		"message": "Login the user",
+		"message": "Logged in successfully",
+		"data":    getUserProfileData(user),
+		"tokens":  tokens,
 	})
 }
 
