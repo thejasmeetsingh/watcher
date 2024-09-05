@@ -244,16 +244,66 @@ func (apiCfg *APIConfig) UpdateProfile(ctx *fiber.Ctx) error {
 func (apiCfg *APIConfig) UpdatePassword(ctx *fiber.Ctx) error {
 	ctx.Accepts("application/json")
 
-	var params Password
-
-	if err := ctx.BodyParser(params); err != nil {
-		return err
+	user, ok := ctx.Locals("user").(*database.User)
+	if !ok {
+		return ctx.Status(fiber.StatusForbidden).JSON(fiber.Map{
+			"message": "Invalid credentials",
+		})
 	}
 
-	log.Infoln(params)
+	params := new(Password)
+
+	// Parse the request data
+	if err := ctx.BodyParser(params); err != nil {
+		log.Errorln(err)
+		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"message": "Invalid request data format",
+		})
+	}
+
+	// Validate the request data
+	err := utils.ValidateRequestData(ctx.Context(), params)
+	if err != nil {
+		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"message": err.Error(),
+		})
+	}
+
+	// Check if new password and old password are same
+	match, err := utils.CheckPasswordValid(params.Password, user.Password)
+	if err != nil {
+		log.Errorln(err)
+		return ctx.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"message": "Something went wrong. Please try after some time",
+		})
+	}
+
+	if match {
+		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"message": "New password should not be same as old password",
+		})
+	}
+
+	// Generate hash of the password
+	params.Password, err = utils.GetHashedPassword(params.Password)
+	if err != nil {
+		log.Errorln(err)
+		return ctx.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"message": "Something went wrong. Please try after some time",
+		})
+	}
+
+	// Update user password
+	err = updatePassword(apiCfg, ctx.Context(), user.ID, params)
+	if err != nil {
+		log.Errorln(err)
+		return ctx.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"message": "Something went wrong. Please try after some time",
+		})
+	}
 
 	return ctx.JSON(fiber.Map{
-		"message": "Update user password",
+		"message": "Password updated successfully",
 	})
 }
 
