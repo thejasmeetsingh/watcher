@@ -41,7 +41,7 @@ func main() {
 		Validator: apiCfg.JwtAuth,
 	}))
 
-	auth.Patch("/profile/", apiCfg.UpdatePassword)
+	auth.Patch("/profile/", apiCfg.UpdateProfile)
 	auth.Put("/password/", apiCfg.UpdatePassword)
 	auth.Delete("/delete/", apiCfg.DeleteProfile)
 

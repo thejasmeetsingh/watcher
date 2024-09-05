@@ -1,7 +1,6 @@
 package api
 
 import (
-	"context"
 	"time"
 
 	"github.com/gofiber/fiber/v2"
@@ -55,8 +54,7 @@ func (apiCfg *APIConfig) JwtAuth(ctx *fiber.Ctx, token string) (bool, error) {
 	}
 
 	// Set user details in context
-	c := context.WithValue(ctx.Context(), "user", &user)
-	ctx.SetUserContext(c)
+	ctx.Locals("user", user)
 
 	return true, nil
 }
@@ -102,7 +100,7 @@ func (apiCfg *APIConfig) Signup(ctx *fiber.Ctx) error {
 	params.Password = password
 
 	// Create user in DB
-	user, err := createUser(apiCfg, ctx.Context(), *params)
+	user, err := createUser(apiCfg, ctx.Context(), params)
 	if err != nil {
 		log.Errorln(err)
 		return ctx.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
@@ -182,16 +180,64 @@ func (apiCfg *APIConfig) Login(ctx *fiber.Ctx) error {
 func (apiCfg *APIConfig) UpdateProfile(ctx *fiber.Ctx) error {
 	ctx.Accepts("application/json")
 
-	var params Profile
-
-	if err := ctx.BodyParser(params); err != nil {
-		return err
+	user, ok := ctx.Locals("user").(*database.User)
+	if !ok {
+		return ctx.Status(fiber.StatusForbidden).JSON(fiber.Map{
+			"message": "Invalid credentials",
+		})
 	}
 
-	log.Infoln(params)
+	params := new(Profile)
+
+	// Parse the request data
+	if err := ctx.BodyParser(params); err != nil {
+		log.Errorln(err)
+		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"message": "Invalid request data format",
+		})
+	}
+
+	// Pre-fill existing user data to perform the PATCH
+	if params.Email == "" {
+		params.Email = user.Email
+	}
+
+	if params.Name == "" {
+		params.Name = user.Name
+	}
+
+	if params.Age < 12 && user.Age.Int32 > 12 {
+		params.Age = user.Age.Int32
+	}
+
+	if params.Gender == "" && string(user.Gender.GenderType) != "" {
+		params.Gender = user.Gender.GenderType
+	}
+
+	if len(params.Genres) == 0 && len(user.Genres) != 0 {
+		params.Genres = user.Genres
+	}
+
+	// Validate the request data
+	err := utils.ValidateRequestData(ctx.Context(), params)
+	if err != nil {
+		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"message": err.Error(),
+		})
+	}
+
+	// Update user profile
+	user, err = updateProfile(apiCfg, ctx.Context(), user.ID, params)
+	if err != nil {
+		log.Errorln(err)
+		return ctx.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"message": "Something went wrong. Please try after some time",
+		})
+	}
 
 	return ctx.JSON(fiber.Map{
-		"message": "Update user profile",
+		"message": "Profile updated successfully",
+		"data":    getUserProfileData(user),
 	})
 }
 
