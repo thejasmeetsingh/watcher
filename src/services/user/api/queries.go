@@ -26,7 +26,7 @@ func getUserByID(apiCfg *APIConfig, ctx context.Context, userID uuid.UUID) (*dat
 	return &user, nil
 }
 
-func createUser(apiCfg *APIConfig, ctx context.Context, params Signup) (*database.User, error) {
+func createUser(apiCfg *APIConfig, ctx context.Context, params *Signup) (*database.User, error) {
 	tx, err := apiCfg.DB.Begin(ctx)
 	if err != nil {
 		return nil, err
@@ -63,7 +63,7 @@ func createUser(apiCfg *APIConfig, ctx context.Context, params Signup) (*databas
 	return &user, nil
 }
 
-func updateProfile(apiCfg *APIConfig, ctx context.Context, userID uuid.UUID, params Profile) (*database.User, error) {
+func updateProfile(apiCfg *APIConfig, ctx context.Context, userID uuid.UUID, params *Profile) (*database.User, error) {
 	tx, err := apiCfg.DB.Begin(ctx)
 	if err != nil {
 		return nil, err
@@ -104,7 +104,7 @@ func updateProfile(apiCfg *APIConfig, ctx context.Context, userID uuid.UUID, par
 	return &user, nil
 }
 
-func updatePassword(apiCfg *APIConfig, ctx context.Context, userID uuid.UUID, params Password) error {
+func updatePassword(apiCfg *APIConfig, ctx context.Context, userID uuid.UUID, params *Password) error {
 	tx, err := apiCfg.DB.Begin(ctx)
 	if err != nil {
 		return err
