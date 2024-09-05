@@ -42,8 +42,8 @@ func main() {
 	}))
 
 	auth.Patch("/profile/", apiCfg.UpdateProfile)
+	auth.Delete("/profile/", apiCfg.DeleteProfile)
 	auth.Put("/password/", apiCfg.UpdatePassword)
-	auth.Delete("/delete/", apiCfg.DeleteProfile)
 
 	log.Fatalln(app.Listen(":3000"))
 }

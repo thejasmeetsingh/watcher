@@ -308,7 +308,23 @@ func (apiCfg *APIConfig) UpdatePassword(ctx *fiber.Ctx) error {
 }
 
 func (apiCfg *APIConfig) DeleteProfile(ctx *fiber.Ctx) error {
+	user, ok := ctx.Locals("user").(*database.User)
+	if !ok {
+		return ctx.Status(fiber.StatusForbidden).JSON(fiber.Map{
+			"message": "Invalid credentials",
+		})
+	}
+
+	// Delete user profile
+	err := deleteProfile(apiCfg, ctx.Context(), user.ID)
+	if err != nil {
+		log.Errorln(err)
+		return ctx.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"message": "Something went wrong. Please try after some time",
+		})
+	}
+
 	return ctx.JSON(fiber.Map{
-		"message": "Delete user profile",
+		"message": "Profile deleted successfully",
 	})
 }
