@@ -14,6 +14,8 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+    networks:
+      - internal
 
   app:
     build: .
@@ -27,6 +29,15 @@ services:
     depends_on:
       db:
         condition: service_healthy
+    networks:
+      - internal
+      - shared-network
 
 volumes:
   db:
+
+networks:
+  internal:
+    driver: bridge
+  shared-network:
+    external: true
