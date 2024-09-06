@@ -108,6 +108,14 @@ func (apiCfg *APIConfig) Signup(ctx *fiber.Ctx) error {
 		})
 	}
 
+	userData := getUserProfileData(user)
+
+	// Save user details in cache
+	err = updateCachedUserDetails(ctx.Context(), userData)
+	if err != nil {
+		log.Errorln("Cache Error:", err)
+	}
+
 	// Generate Auth tokens
 	tokens, err := utils.GenerateTokens(user.ID.String())
 	if err != nil {
@@ -119,7 +127,7 @@ func (apiCfg *APIConfig) Signup(ctx *fiber.Ctx) error {
 
 	return ctx.Status(fiber.StatusCreated).JSON(fiber.Map{
 		"message": "Account created successfully",
-		"data":    getUserProfileData(user),
+		"data":    userData,
 		"tokens":  tokens,
 	})
 }
@@ -235,9 +243,17 @@ func (apiCfg *APIConfig) UpdateProfile(ctx *fiber.Ctx) error {
 		})
 	}
 
+	userData := getUserProfileData(user)
+
+	// Update user details in cache
+	err = updateCachedUserDetails(ctx.Context(), userData)
+	if err != nil {
+		log.Errorln("Cache Error:", err)
+	}
+
 	return ctx.JSON(fiber.Map{
 		"message": "Profile updated successfully",
-		"data":    getUserProfileData(user),
+		"data":    userData,
 	})
 }
 
@@ -322,6 +338,12 @@ func (apiCfg *APIConfig) DeleteProfile(ctx *fiber.Ctx) error {
 		return ctx.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 			"message": "Something went wrong. Please try after some time",
 		})
+	}
+
+	// Delete user details from cache
+	err = deleteCachedUser(ctx.Context(), user.ID.String())
+	if err != nil {
+		log.Errorln("Cache Error:", err)
 	}
 
 	return ctx.JSON(fiber.Map{
