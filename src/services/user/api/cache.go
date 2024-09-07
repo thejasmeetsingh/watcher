@@ -2,6 +2,7 @@ package api
 
 import (
 	"context"
+	"encoding/json"
 	"os"
 
 	"github.com/redis/go-redis/v9"
@@ -21,7 +22,12 @@ func updateCachedUserDetails(ctx context.Context, user map[string]interface{}) e
 	conn := getConn()
 	defer conn.Close()
 
-	return conn.Set(ctx, user["id"].(string), user, 0).Err()
+	userData, err := json.Marshal(user)
+	if err != nil {
+		return err
+	}
+
+	return conn.Set(ctx, user["id"].(string), userData, 0).Err()
 }
 
 func deleteCachedUser(ctx context.Context, userID string) error {
