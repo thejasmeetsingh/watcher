@@ -1,15 +1,20 @@
 const express = require("express");
+const logger = require("morgan");
 
 const app = express();
+const port = process.env.PORT || 3000;
 
-app.use(express.json())
+app.use(
+  logger(":remote-addr :remote-user :method :url :status - :response-time ms")
+);
+app.use(express.json());
 
 app.get("/health-check/", async (req, res) => {
-    res.status(200).send({
-        "message": "ToDo service up & running"
-    })
-})
+  res.status(200).json({
+    message: "ToDo service up & running",
+  });
+});
 
-app.listen(3000, () => {
-    console.log(`Server is up`)
-})
+app.listen(port, async () => {
+  console.log(`Server is up on port: ${port}`);
+});
