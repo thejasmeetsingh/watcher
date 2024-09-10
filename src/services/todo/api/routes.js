@@ -84,7 +84,67 @@ router.post("/add", async (req, res) => {
   }
 });
 
-router.put("/update/:id", async (req, res) => {});
+router.put("/update/:id", async (req, res) => {
+  const itemID = req.params.id;
+  const isCompleted = req.body.is_completed;
+
+  // Validate the itemID format
+  if (!validateUUID(itemID)) {
+    return res
+      .status(400)
+      .json({
+        message: "Invalid item_id",
+        data: null,
+      })
+      .end();
+  }
+
+  // Check if isCompleted key have a valid boolean value
+  if (typeof isCompleted !== "boolean") {
+    return res
+      .status(400)
+      .json({ message: "Invalid boolean value", data: null })
+      .end();
+  }
+
+  try {
+    // Check if the item exists with the given ID
+    let item = await Todo().where({ id: itemID }).first();
+
+    if (!item) {
+      return res
+        .status(404)
+        .json({
+          message: "Item does not exists",
+          data: null,
+        })
+        .end();
+    }
+
+    // Update the item in DB
+    [item] = await Todo()
+      .where({ id: itemID })
+      .update({ is_completed: isCompleted })
+      .returning("*");
+
+    res
+      .status(200)
+      .json({
+        message: "Updated successfully",
+        data: item,
+      })
+      .end();
+  } catch (error) {
+    // Return DB error response
+    res
+      .status(500)
+      .json({
+        message: error.message,
+        data: null,
+      })
+      .end();
+  }
+});
 
 router.delete("/delete/:id", async (req, res) => {});
 
