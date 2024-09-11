@@ -1,4 +1,5 @@
 const express = require("express");
+const { StatusCodes } = require("http-status-codes");
 const { v4: uuidv4, validate: validateUUID } = require("uuid");
 
 const db = require("../db/config");
@@ -8,7 +9,7 @@ const Todo = () => db("todo");
 
 router.get("/health-check", async (req, res) => {
   res
-    .status(200)
+    .status(StatusCodes.OK)
     .json({
       message: "ToDo service up & running",
     })
@@ -24,7 +25,7 @@ router.get("/list", async (req, res) => {
     ]);
 
   res
-    .status(200)
+    .status(StatusCodes.OK)
     .json({
       message: null,
       results: items,
@@ -48,7 +49,7 @@ router.post("/add", async (req, res) => {
 
   if (error) {
     return res
-      .status(400)
+      .status(StatusCodes.BAD_REQUEST)
       .json({
         message: error,
         data: null,
@@ -66,7 +67,7 @@ router.post("/add", async (req, res) => {
       .returning("*");
 
     res
-      .status(201)
+      .status(StatusCodes.CREATED)
       .json({
         message: "Added successfully",
         data: item,
@@ -75,7 +76,7 @@ router.post("/add", async (req, res) => {
   } catch (error) {
     // Return DB error response
     res
-      .status(500)
+      .status(StatusCodes.INTERNAL_SERVER_ERROR)
       .json({
         message: error.message,
         data: null,
@@ -91,7 +92,7 @@ router.put("/update/:id", async (req, res) => {
   // Validate the itemID format
   if (!validateUUID(itemID)) {
     return res
-      .status(400)
+      .status(StatusCodes.BAD_REQUEST)
       .json({
         message: "Invalid item_id",
         data: null,
@@ -102,7 +103,7 @@ router.put("/update/:id", async (req, res) => {
   // Check if isCompleted key have a valid boolean value
   if (typeof isCompleted !== "boolean") {
     return res
-      .status(400)
+      .status(StatusCodes.BAD_REQUEST)
       .json({ message: "Invalid boolean value", data: null })
       .end();
   }
@@ -113,7 +114,7 @@ router.put("/update/:id", async (req, res) => {
 
     if (!item) {
       return res
-        .status(404)
+        .status(StatusCodes.NOT_FOUND)
         .json({
           message: "Item does not exists",
           data: null,
@@ -128,7 +129,7 @@ router.put("/update/:id", async (req, res) => {
       .returning("*");
 
     res
-      .status(200)
+      .status(StatusCodes.OK)
       .json({
         message: "Updated successfully",
         data: item,
@@ -137,7 +138,7 @@ router.put("/update/:id", async (req, res) => {
   } catch (error) {
     // Return DB error response
     res
-      .status(500)
+      .status(StatusCodes.INTERNAL_SERVER_ERROR)
       .json({
         message: error.message,
         data: null,
@@ -146,6 +147,54 @@ router.put("/update/:id", async (req, res) => {
   }
 });
 
-router.delete("/delete/:id", async (req, res) => {});
+router.delete("/delete/:id", async (req, res) => {
+  const itemID = req.params.id;
+
+  // Validate the itemID format
+  if (!validateUUID(itemID)) {
+    return res
+      .status(StatusCodes.BAD_REQUEST)
+      .json({
+        message: "Invalid item_id",
+        data: null,
+      })
+      .end();
+  }
+
+  try {
+    // Check if the item exists with the given ID
+    let item = await Todo().where({ id: itemID }).first();
+
+    if (!item) {
+      return res
+        .status(StatusCodes.NOT_FOUND)
+        .json({
+          message: "Item does not exists",
+          data: null,
+        })
+        .end();
+    }
+
+    // Delete the item from DB
+    await Todo().where({ id: itemID }).del();
+
+    res
+      .status(StatusCodes.OK)
+      .json({
+        message: "Deleted successfully",
+        data: null,
+      })
+      .end();
+  } catch (error) {
+    // Return DB error response
+    res
+      .status(StatusCodes.INTERNAL_SERVER_ERROR)
+      .json({
+        message: error.message,
+        data: null,
+      })
+      .end();
+  }
+});
 
 module.exports = router;
