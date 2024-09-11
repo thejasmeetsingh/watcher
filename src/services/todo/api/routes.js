@@ -3,19 +3,17 @@ const { StatusCodes } = require("http-status-codes");
 const { v4: uuidv4, validate: validateUUID } = require("uuid");
 
 const db = require("../db/config");
+const { listResponse, successResponse, errorResponse } = require("./response");
 
 const router = express.Router();
 const Todo = () => db("todo");
 
+// A health check API for determining the readiness of the app
 router.get("/health-check", async (req, res) => {
-  res
-    .status(StatusCodes.OK)
-    .json({
-      message: "ToDo service up & running",
-    })
-    .end();
+  return successResponse(res, { message: "ToDo service up & running" });
 });
 
+// Get list of items added by the user
 router.get("/list", async (req, res) => {
   const items = await Todo()
     .select()
@@ -24,15 +22,10 @@ router.get("/list", async (req, res) => {
       { column: "created_at", order: "desc" },
     ]);
 
-  res
-    .status(StatusCodes.OK)
-    .json({
-      message: null,
-      results: items,
-    })
-    .end();
+  return listResponse(res, { results: items });
 });
 
+// Add an item into DB and associate it with current user
 router.post("/add", async (req, res) => {
   const movieID = req.body.movie_id;
   let error = null;
@@ -48,13 +41,7 @@ router.post("/add", async (req, res) => {
   }
 
   if (error) {
-    return res
-      .status(StatusCodes.BAD_REQUEST)
-      .json({
-        message: error,
-        data: null,
-      })
-      .end();
+    return errorResponse(res, { message: error });
   }
 
   try {
@@ -66,46 +53,33 @@ router.post("/add", async (req, res) => {
       })
       .returning("*");
 
-    res
-      .status(StatusCodes.CREATED)
-      .json({
-        message: "Added successfully",
-        data: item,
-      })
-      .end();
+    return successResponse(res, {
+      message: "Item added successfully",
+      data: item,
+      code: StatusCodes.CREATED,
+    });
   } catch (error) {
     // Return DB error response
-    res
-      .status(StatusCodes.INTERNAL_SERVER_ERROR)
-      .json({
-        message: error.message,
-        data: null,
-      })
-      .end();
+    return errorResponse(res, {
+      message: error.message,
+      code: StatusCodes.INTERNAL_SERVER_ERROR,
+    });
   }
 });
 
+// Update the item added by current user and mark it as complete or incomplete
 router.put("/update/:id", async (req, res) => {
   const itemID = req.params.id;
   const isCompleted = req.body.is_completed;
 
   // Validate the itemID format
   if (!validateUUID(itemID)) {
-    return res
-      .status(StatusCodes.BAD_REQUEST)
-      .json({
-        message: "Invalid item_id",
-        data: null,
-      })
-      .end();
+    return errorResponse(res, { message: "Invalid item_id" });
   }
 
   // Check if isCompleted key have a valid boolean value
   if (typeof isCompleted !== "boolean") {
-    return res
-      .status(StatusCodes.BAD_REQUEST)
-      .json({ message: "Invalid boolean value", data: null })
-      .end();
+    return errorResponse(res, { message: "Invalid boolean value" });
   }
 
   try {
@@ -113,13 +87,10 @@ router.put("/update/:id", async (req, res) => {
     let item = await Todo().where({ id: itemID }).first();
 
     if (!item) {
-      return res
-        .status(StatusCodes.NOT_FOUND)
-        .json({
-          message: "Item does not exists",
-          data: null,
-        })
-        .end();
+      return errorResponse(res, {
+        message: "Item does not exists",
+        code: StatusCodes.NOT_FOUND,
+      });
     }
 
     // Update the item in DB
@@ -128,37 +99,26 @@ router.put("/update/:id", async (req, res) => {
       .update({ is_completed: isCompleted })
       .returning("*");
 
-    res
-      .status(StatusCodes.OK)
-      .json({
-        message: "Updated successfully",
-        data: item,
-      })
-      .end();
+    return successResponse(res, {
+      message: "Updated successfully",
+      data: item,
+    });
   } catch (error) {
     // Return DB error response
-    res
-      .status(StatusCodes.INTERNAL_SERVER_ERROR)
-      .json({
-        message: error.message,
-        data: null,
-      })
-      .end();
+    return errorResponse(res, {
+      message: error.message,
+      code: StatusCodes.INTERNAL_SERVER_ERROR,
+    });
   }
 });
 
+// Delete an item which is added by current user
 router.delete("/delete/:id", async (req, res) => {
   const itemID = req.params.id;
 
   // Validate the itemID format
   if (!validateUUID(itemID)) {
-    return res
-      .status(StatusCodes.BAD_REQUEST)
-      .json({
-        message: "Invalid item_id",
-        data: null,
-      })
-      .end();
+    return errorResponse(res, { message: "Invalid item_id" });
   }
 
   try {
@@ -166,34 +126,22 @@ router.delete("/delete/:id", async (req, res) => {
     let item = await Todo().where({ id: itemID }).first();
 
     if (!item) {
-      return res
-        .status(StatusCodes.NOT_FOUND)
-        .json({
-          message: "Item does not exists",
-          data: null,
-        })
-        .end();
+      return errorResponse(res, {
+        message: "Item does not exists",
+        code: StatusCodes.NOT_FOUND,
+      });
     }
 
     // Delete the item from DB
     await Todo().where({ id: itemID }).del();
 
-    res
-      .status(StatusCodes.OK)
-      .json({
-        message: "Deleted successfully",
-        data: null,
-      })
-      .end();
+    return successResponse(res, { message: "Deleted successfully" });
   } catch (error) {
     // Return DB error response
-    res
-      .status(StatusCodes.INTERNAL_SERVER_ERROR)
-      .json({
-        message: error.message,
-        data: null,
-      })
-      .end();
+    return errorResponse(res, {
+      message: error.message,
+      code: StatusCodes.INTERNAL_SERVER_ERROR,
+    });
   }
 });
 
