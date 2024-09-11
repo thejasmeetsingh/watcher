@@ -32,18 +32,20 @@ func main() {
 		Queries: database.New(conn),
 	}
 
-	app.Get("/", api.HealthCheck)
-	app.Post("/signup/", apiCfg.Signup)
-	app.Post("/login/", apiCfg.Login)
+	apiRouter := app.Group("/api/")
 
-	auth := app.Group("")
-	auth.Use(keyauth.New(keyauth.Config{
+	apiRouter.Get("health-check/", api.HealthCheck)
+	apiRouter.Post("signup/", apiCfg.Signup)
+	apiRouter.Post("login/", apiCfg.Login)
+
+	authRouter := apiRouter.Group("")
+	authRouter.Use(keyauth.New(keyauth.Config{
 		Validator: apiCfg.JwtAuth,
 	}))
 
-	auth.Patch("/profile/", apiCfg.UpdateProfile)
-	auth.Delete("/profile/", apiCfg.DeleteProfile)
-	auth.Put("/password/", apiCfg.UpdatePassword)
+	authRouter.Patch("profile/", apiCfg.UpdateProfile)
+	authRouter.Delete("profile/", apiCfg.DeleteProfile)
+	authRouter.Put("password/", apiCfg.UpdatePassword)
 
 	log.Fatalln(app.Listen(":3000"))
 }
