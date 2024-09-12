@@ -3,20 +3,23 @@ const { StatusCodes } = require("http-status-codes");
 const { v4: uuidv4, validate: validateUUID } = require("uuid");
 
 const db = require("../db/config");
+const jwtAuth = require("./middleware");
 const { listResponse, successResponse, errorResponse } = require("./response");
 
 const router = express.Router();
 const Todo = () => db("todo");
 
-// A health check API for determining the readiness of the app
-router.get("/health-check", async (req, res) => {
-  return successResponse(res, { message: "ToDo service up & running" });
-});
+// Add middleware to the router
+router.use(jwtAuth);
+
+// Columns which will be return as part of the response
+const columns = ["id", "created_at", "modified_at", "movie_id", "is_completed"];
 
 // Get list of items added by the user
 router.get("/list", async (req, res) => {
   const items = await Todo()
-    .select()
+    .select(columns)
+    .where({ user_id: req.userID })
     .orderBy([
       { column: "is_completed", order: "desc" },
       { column: "created_at", order: "desc" },
@@ -49,9 +52,9 @@ router.post("/add", async (req, res) => {
     const [item] = await Todo()
       .insert({
         movie_id: movieID,
-        user_id: uuidv4(), // This is just temporary, It will be replaced by user actual ID
+        user_id: req.userID,
       })
-      .returning("*");
+      .returning(columns);
 
     return successResponse(res, {
       message: "Item added successfully",
@@ -84,7 +87,7 @@ router.put("/update/:id", async (req, res) => {
 
   try {
     // Check if the item exists with the given ID
-    let item = await Todo().where({ id: itemID }).first();
+    let item = await Todo().where({ id: itemID, user_id: req.userID }).first();
 
     if (!item) {
       return errorResponse(res, {
@@ -97,7 +100,7 @@ router.put("/update/:id", async (req, res) => {
     [item] = await Todo()
       .where({ id: itemID })
       .update({ is_completed: isCompleted })
-      .returning("*");
+      .returning(columns);
 
     return successResponse(res, {
       message: "Updated successfully",
@@ -123,7 +126,7 @@ router.delete("/delete/:id", async (req, res) => {
 
   try {
     // Check if the item exists with the given ID
-    let item = await Todo().where({ id: itemID }).first();
+    let item = await Todo().where({ id: itemID, user_id: req.userID }).first();
 
     if (!item) {
       return errorResponse(res, {
