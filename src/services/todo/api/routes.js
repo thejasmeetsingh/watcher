@@ -98,7 +98,7 @@ router.put("/update/:id", async (req, res) => {
 
     // Update the item in DB
     [item] = await Todo()
-      .where({ id: itemID })
+      .where({ id: itemID, user_id: req.userID })
       .update({ is_completed: isCompleted })
       .returning(columns);
 
@@ -136,7 +136,7 @@ router.delete("/delete/:id", async (req, res) => {
     }
 
     // Delete the item from DB
-    await Todo().where({ id: itemID }).del();
+    await Todo().where({ id: itemID, user_id: req.userID }).del();
 
     return successResponse(res, { message: "Deleted successfully" });
   } catch (error) {
