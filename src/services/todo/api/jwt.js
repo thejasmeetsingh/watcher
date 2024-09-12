@@ -3,7 +3,7 @@ const jwt = require("jsonwebtoken");
 const getSecretKey = () => {
   let secretKey = process.env.SECRET_KEY;
 
-  if (secretKey === "") {
+  if (!secretKey) {
     secretKey = "random-secret-123";
   }
 

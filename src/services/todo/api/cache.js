@@ -1,4 +1,4 @@
-const { createClient: createClient } = require("redis");
+const { createClient } = require("redis");
 
 const getClient = async () => {
   const redisAddr = process.env.REDIS_HOST;
@@ -19,13 +19,13 @@ const getClient = async () => {
   return client;
 };
 
-const getUserFromCache = async (userID) => {
+const isUserExistsInCache = async (userID) => {
   const client = await getClient();
-  const user = await client.get(userID);
+  const isExists = await client.exists(userID);
 
   await client.disconnect();
 
-  return user;
+  return isExists === 1;
 };
 
-module.exports = getUserFromCache;
+module.exports = isUserExistsInCache;
