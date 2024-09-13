@@ -20,12 +20,6 @@ func getUserProfileData(user *database.User) fiber.Map {
 	}
 }
 
-func HealthCheck(ctx *fiber.Ctx) error {
-	return ctx.JSON(fiber.Map{
-		"message": "User service is up & running",
-	})
-}
-
 func (apiCfg *APIConfig) Signup(ctx *fiber.Ctx) error {
 	ctx.Accepts("application/json")
 
@@ -83,8 +77,8 @@ func (apiCfg *APIConfig) Signup(ctx *fiber.Ctx) error {
 		log.Errorln("Cache Error:", err)
 	}
 
-	// Generate Auth tokens
-	tokens, err := utils.GenerateTokens(user.ID.String())
+	// Generate Auth token
+	token, err := utils.GenerateTokens(user.ID.String())
 	if err != nil {
 		log.Errorln(err)
 		return ctx.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
@@ -95,7 +89,7 @@ func (apiCfg *APIConfig) Signup(ctx *fiber.Ctx) error {
 	return ctx.Status(fiber.StatusCreated).JSON(fiber.Map{
 		"message": "Account created successfully",
 		"data":    userData,
-		"tokens":  tokens,
+		"token":   token,
 	})
 }
 
@@ -136,8 +130,8 @@ func (apiCfg *APIConfig) Login(ctx *fiber.Ctx) error {
 		})
 	}
 
-	// Generate Auth tokens
-	tokens, err := utils.GenerateTokens(user.ID.String())
+	// Generate Auth token
+	token, err := utils.GenerateTokens(user.ID.String())
 	if err != nil {
 		log.Errorln(err)
 		return ctx.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
@@ -148,7 +142,7 @@ func (apiCfg *APIConfig) Login(ctx *fiber.Ctx) error {
 	return ctx.JSON(fiber.Map{
 		"message": "Logged in successfully",
 		"data":    getUserProfileData(user),
-		"tokens":  tokens,
+		"token":   token,
 	})
 }
 

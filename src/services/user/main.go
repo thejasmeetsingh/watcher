@@ -15,12 +15,26 @@ import (
 )
 
 func main() {
+	port := os.Getenv("PORT")
+
+	if port == "" {
+		port = "3000"
+	}
+
 	app := fiber.New(fiber.Config{})
 	app.Use(requestid.New())
 	app.Use(logger.New(logger.Config{
 		Format: "[${ip}]:${port} ${status} - ${method} ${path}\n",
 	}))
 
+	// A health check API for determining the readiness of the app
+	app.Get("/health-check/", func(ctx *fiber.Ctx) error {
+		return ctx.JSON(fiber.Map{
+			"message": "User service is up & running",
+		})
+	})
+
+	// Get DB connection
 	conn, err := pgx.Connect(context.Background(), os.Getenv("DB_URL"))
 	if err != nil {
 		log.Fatalln("error while connecting to DB: ", err)
@@ -32,9 +46,9 @@ func main() {
 		Queries: database.New(conn),
 	}
 
+	// Configure routes
 	apiRouter := app.Group("/api/")
 
-	apiRouter.Get("health-check/", api.HealthCheck)
 	apiRouter.Post("signup/", apiCfg.Signup)
 	apiRouter.Post("login/", apiCfg.Login)
 
@@ -47,5 +61,5 @@ func main() {
 	authRouter.Delete("profile/", apiCfg.DeleteProfile)
 	authRouter.Put("password/", apiCfg.UpdatePassword)
 
-	log.Fatalln(app.Listen(":3000"))
+	log.Fatalln(app.Listen(":" + port))
 }
