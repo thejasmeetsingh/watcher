@@ -14,11 +14,6 @@ type Claims struct {
 	jwt.RegisteredClaims
 }
 
-type Tokens struct {
-	Access  string `json:"access"`
-	Refresh string `json:"refresh"`
-}
-
 func getSecretKey() []byte {
 	secretKey := os.Getenv("SECRET_KEY")
 	if secretKey == "" {
@@ -28,59 +23,37 @@ func getSecretKey() []byte {
 	return []byte(secretKey)
 }
 
-// Return the access token and refresh token expiry duration
-func getTokenExpiration() (time.Duration, time.Duration) {
-	accessTokenExp := os.Getenv("ACCESS_TOKEN_EXP")
-	refreshTokenExp := os.Getenv("REFRESH_TOKEN_EXP")
+// Return the auth token expiry duration
+func getTokenExpiration() time.Duration {
+	tokenExp := os.Getenv("TOKEN_EXP")
 
-	accessTokenExpiration, err := strconv.Atoi(accessTokenExp)
+	_tokenExpiration, err := strconv.Atoi(tokenExp)
 	if err != nil {
-		accessTokenExpiration = 7
+		_tokenExpiration = 7
 	}
 
-	refreshTokenExpiration, err := strconv.Atoi(refreshTokenExp)
-	if err != nil {
-		refreshTokenExpiration = 14
-	}
-
-	return time.Hour * 24 * time.Duration(accessTokenExpiration), time.Hour * 24 * time.Duration(refreshTokenExpiration)
+	return time.Hour * 24 * time.Duration(_tokenExpiration)
 }
 
-// Generate the access and refresh tokens and encode the given userID string
-func GenerateTokens(userID string) (Tokens, error) {
-	accessTokenExp, refreshTokenExp := getTokenExpiration()
+// Generate the auth token and encode the given userID string
+func GenerateTokens(userID string) (string, error) {
+	tokenExp := getTokenExpiration()
 	secretKey := getSecretKey()
 
-	accessToken := jwt.NewWithClaims(jwt.SigningMethodHS256, &Claims{
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, &Claims{
 		Data: userID,
 		RegisteredClaims: jwt.RegisteredClaims{
-			ExpiresAt: jwt.NewNumericDate(time.Now().Add(accessTokenExp)),
+			ExpiresAt: jwt.NewNumericDate(time.Now().Add(tokenExp)),
 		},
 	})
 
-	refreshToken := jwt.NewWithClaims(jwt.SigningMethodHS256, &Claims{
-		Data: userID,
-		RegisteredClaims: jwt.RegisteredClaims{
-			ExpiresAt: jwt.NewNumericDate(time.Now().Add(refreshTokenExp)),
-		},
-	})
-
-	accessTokenString, err := accessToken.SignedString(secretKey)
+	tokenString, err := token.SignedString(secretKey)
 
 	if err != nil {
-		return Tokens{}, err
+		return tokenString, err
 	}
 
-	refreshTokenString, err := refreshToken.SignedString(secretKey)
-
-	if err != nil {
-		return Tokens{}, err
-	}
-
-	return Tokens{
-		Access:  accessTokenString,
-		Refresh: refreshTokenString,
-	}, nil
+	return tokenString, nil
 }
 
 // Verify the given token string is valid or not and return the respected token claim which contains the encoded data
@@ -100,20 +73,4 @@ func VerifyToken(token string) (*Claims, error) {
 	}
 
 	return nil, fmt.Errorf("invalid token string")
-}
-
-// Generate new access and refresh tokens
-//
-// This will help where access token is expired and user uses refresh token to generate a new access token
-func ReIssueAccessToken(refreshToken string) (Tokens, error) {
-	claims, err := VerifyToken(refreshToken)
-	if err != nil {
-		return Tokens{}, err
-	}
-
-	if time.Unix(claims.ExpiresAt.Unix(), 0).After(time.Now()) {
-		return GenerateTokens(claims.Data)
-	}
-
-	return Tokens{}, fmt.Errorf("refresh token has expired")
 }
