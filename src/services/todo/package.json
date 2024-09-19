@@ -4,10 +4,11 @@
   "description": "Watcher ToDo Service",
   "main": "index.js",
   "scripts": {
-    "start": "node index.js",
-    "dev": "env-cmd -f .env nodemon index.js",
+    "build": "tsc src/**/*",
+    "start": "node dist/index.js",
+    "dev": "env-cmd -f .env nodemon src/index.ts",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "migrate": "knex migrate:latest --knexfile db/knexfile.js"
+    "migrate": "knex migrate:latest --knexfile src/db/knexfile.ts"
   },
   "author": "Jasmeet Singh",
   "license": "ISC",
@@ -22,7 +23,10 @@
     "uuid": "^10.0.0"
   },
   "devDependencies": {
+    "@types/express": "^4.17.21",
+    "@types/node": "^22.5.5",
     "env-cmd": "^10.1.0",
-    "nodemon": "^3.1.4"
+    "nodemon": "^3.1.4",
+    "typescript": "^5.6.2"
   }
 }
