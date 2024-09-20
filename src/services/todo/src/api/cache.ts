@@ -1,8 +1,14 @@
-const { createClient } = require("redis");
+import { createClient } from "redis";
 
 const getClient = async () => {
-  const redisAddr = process.env.REDIS_HOST;
-  const [host, port] = redisAddr.split(":");
+  const redisAddr: string | undefined = process.env.REDIS_HOST;
+
+  if (!redisAddr) {
+    return;
+  }
+
+  const [host, portStr] = redisAddr.split(":");
+  const port = parseInt(portStr, 10);
 
   const client = await createClient({
     username: "default",
@@ -19,13 +25,16 @@ const getClient = async () => {
   return client;
 };
 
-const isUserExistsInCache = async (userID) => {
+export const isUserExistsInCache = async (userID: string) => {
   const client = await getClient();
+
+  if (!client) {
+    throw new Error("Error: While connecting to cache");
+  }
+
   const isExists = await client.exists(userID);
 
   await client.disconnect();
 
   return isExists === 1;
 };
-
-module.exports = isUserExistsInCache;
