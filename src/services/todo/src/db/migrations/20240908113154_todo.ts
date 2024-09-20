@@ -1,4 +1,6 @@
-exports.up = (knex) => {
+import { Knex } from "knex";
+
+const up = (knex: Knex): Knex.SchemaBuilder => {
   return knex.schema.createTable("todo", (table) => {
     table
       .uuid("id", {
@@ -25,6 +27,8 @@ exports.up = (knex) => {
   });
 };
 
-exports.down = function (knex) {
+const down = (knex: Knex): Knex.SchemaBuilder => {
   return knex.schema.dropTable("todo");
 };
+
+export { up, down };
