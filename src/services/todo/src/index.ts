@@ -1,11 +1,11 @@
-const express = require("express");
-const logger = require("morgan");
+import express, { Response } from "express";
+import logger from "morgan";
 
-const router = require("./api/routes");
-const { successResponse } = require("./api/response");
+import { router } from "@api/routes";
+import { StatusCodes } from "http-status-codes";
 
 const app = express();
-const port = process.env.PORT || 3000;
+const port = process.env.PORT || "3000";
 
 app.use(
   logger(":remote-addr :remote-user :method :url :status - :response-time ms")
@@ -14,8 +14,13 @@ app.use(express.json());
 app.use("/api", router);
 
 // A health check API for determining the readiness of the app
-app.get("/health-check", async (req, res) => {
-  return successResponse(res, { message: "ToDo service up & running" });
+app.get("/health-check", async (_, res: Response) => {
+  return res
+    .status(StatusCodes.OK)
+    .json({
+      message: "ToDo service up & running",
+    })
+    .end();
 });
 
 const server = app.listen(port, async () => {
