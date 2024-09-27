@@ -6,13 +6,10 @@
     "rootDir": "./src",
     "baseUrl": "./src",
     "strict": true,
+    "removeComments": true,
     "esModuleInterop": true,
     "skipLibCheck": true,
-    "forceConsistentCasingInFileNames": true,
-    "paths": {
-      "@api/*": ["api/*"],
-      "@db/*": ["db/*"]
-    }
+    "forceConsistentCasingInFileNames": true
   },
   "include": ["src/**/*"],
   "exclude": ["node_modules"]
