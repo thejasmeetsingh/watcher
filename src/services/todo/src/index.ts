@@ -1,7 +1,7 @@
 import express, { Response } from "express";
 import logger from "morgan";
 
-import { router } from "@api/routes";
+import { router } from "./api/routes";
 import { StatusCodes } from "http-status-codes";
 
 const app = express();

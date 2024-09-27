@@ -2,8 +2,8 @@ import express, { Request, Response } from "express";
 import { StatusCodes } from "http-status-codes";
 import { validate } from "uuid";
 
-import { db } from "@db/config";
-import { jwtAuth } from "@api/middleware";
+import { db } from "../db/config";
+import { jwtAuth } from "./middleware";
 
 const router = express.Router();
 const Todo = () => db("todo");

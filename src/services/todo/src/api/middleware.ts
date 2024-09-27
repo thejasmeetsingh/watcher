@@ -1,8 +1,8 @@
 import { Request, Response, NextFunction } from "express";
 import { StatusCodes } from "http-status-codes";
 
-import { isUserExistsInCache } from "@api/cache";
-import { verifyToken } from "@api/jwt";
+import { isUserExistsInCache } from "./cache";
+import { verifyToken } from "./jwt";
 
 export const jwtAuth = async (
   req: Request,
