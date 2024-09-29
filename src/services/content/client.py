@@ -1,0 +1,28 @@
+from httpx import AsyncClient
+
+
+class CustomAsyncClient(AsyncClient):
+    """
+    Custom async client which will store
+    basic properties like: BaseURL, headers
+    which will be used in all API call
+    to the MovieDB service.
+    """
+
+    def __init__(self, url: str, token: str):
+        self.token = token
+        self.url = url
+        self.headers = {
+            "accept": "application/json",
+            "content-type": "application/json",
+            "Authorization": f"Bearer {token}"
+        }
+
+        super().__init__(headers=self.headers)
+
+    def get_absolute_url(self, endpoint: str) -> str:
+        return self.url + endpoint
+
+    async def get(self, endpoint: str, params: dict[str, str] | None = None):
+        url = self.get_absolute_url(endpoint)
+        return await super().get(url=url, params=params)
