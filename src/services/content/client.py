@@ -1,3 +1,5 @@
+import os
+
 from httpx import AsyncClient
 
 
@@ -26,3 +28,22 @@ class CustomAsyncClient(AsyncClient):
     async def get(self, endpoint: str, params: dict[str, str] | None = None):
         url = self.get_absolute_url(endpoint)
         return await super().get(url=url, params=params)
+
+
+async def get_client():
+    """
+    Get custom API client instance
+    """
+
+    base_url = os.getenv("MOVIE_DB_BASE_URL")
+    token = os.getenv("MOVIE_DB_ACCESS_TOKEN")
+
+    if not base_url or not token:
+        raise KeyError("MovieDB credentials are not configured in env")
+
+    client = CustomAsyncClient(base_url, token)
+
+    try:
+        yield client
+    except Exception as _:
+        await client.aclose()
