@@ -1,16 +1,18 @@
-from typing import Annotated
+from typing import Any, Annotated
 
 from fastapi import APIRouter, Depends, status
 from fastapi.responses import JSONResponse
 
 from client import CustomAsyncClient, get_client
+from cache import CustomAsyncRedisClient, get_db_client
 
 router = APIRouter()
 
 
 @router.get("/recommended/")
 async def get_recommended_movies_by_genres(
-    client: Annotated[CustomAsyncClient, Depends(get_client)]
+    client: Annotated[CustomAsyncClient, Depends(get_client)],
+    db: Annotated[CustomAsyncRedisClient, Depends(get_db_client)]
 ) -> JSONResponse:
     """
     Get recommended movies based on the genres that the,
@@ -19,8 +21,19 @@ async def get_recommended_movies_by_genres(
 
     async with client:
         try:
-            response = await client.get(endpoint="/discover/movie")
-            return JSONResponse(status_code=status.HTTP_200_OK, content=response.json())
+            # This is just for testing, It'll be replaced by UserID later on.
+            key = 1
+
+            data: dict | None = await db.get(key)
+
+            if not data:
+                response = await client.get(endpoint="/discover/movie")
+                data = response.json()
+
+                # Save response in DB
+                await db.set(key, data)
+
+            return JSONResponse(status_code=status.HTTP_200_OK, content=data)
 
         except Exception as _:
             return JSONResponse(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, content={
