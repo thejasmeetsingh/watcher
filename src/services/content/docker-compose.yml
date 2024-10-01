@@ -2,15 +2,11 @@ services:
   db:
     container_name: db
     restart: always
-    image: postgres:16.1-alpine3.18
+    image: redis:7.2.3-alpine
     volumes:
-      - db:/var/lib/postgresql/data
-    environment:
-      - POSTGRES_USER=$DB_USER
-      - POSTGRES_PASSWORD=$DB_PASSWORD
-      - POSTGRES_DB=$DB_NAME
+      - db:/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -d $DB_NAME -U $DB_USER"]
+      test: ["CMD-SHELL", "redis-cli ping | grep PONG"]
       interval: 10s
       timeout: 5s
       retries: 5
