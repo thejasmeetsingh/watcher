@@ -1,4 +1,4 @@
-from typing import Any, Annotated
+from typing import Annotated
 
 from fastapi import APIRouter, Depends, status
 from fastapi.responses import JSONResponse
@@ -44,6 +44,7 @@ async def get_recommended_movies_by_genres(
 @router.get("/recommended/{movie_id}/")
 async def get_recommended_movies_by_movie_id(
     client: Annotated[CustomAsyncClient, Depends(get_client)],
+    db: Annotated[CustomAsyncRedisClient, Depends(get_db_client)],
     movie_id: int
 ) -> JSONResponse:
     """
@@ -52,8 +53,18 @@ async def get_recommended_movies_by_movie_id(
 
     async with client:
         try:
-            response = await client.get(endpoint=f"/movie/{movie_id}/recommendations")
-            return JSONResponse(status_code=status.HTTP_200_OK, content=response.json())
+            key = f"{movie_id}-recommendation"
+
+            data: dict | None = await db.get(key)
+
+            if not data:
+                response = await client.get(endpoint=f"/movie/{movie_id}/recommendations")
+                data = response.json()
+
+                # Save response in DB
+                await db.set(key, data)
+
+            return JSONResponse(status_code=status.HTTP_200_OK, content=data)
 
         except Exception as _:
             return JSONResponse(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, content={
@@ -64,6 +75,7 @@ async def get_recommended_movies_by_movie_id(
 @router.get("/detail/{movie_id}/")
 async def get_movie_details(
     client: Annotated[CustomAsyncClient, Depends(get_client)],
+    db: Annotated[CustomAsyncRedisClient, Depends(get_db_client)],
     movie_id: int
 ) -> JSONResponse:
     """
@@ -72,8 +84,18 @@ async def get_movie_details(
 
     async with client:
         try:
-            response = await client.get(endpoint=f"/movie/{movie_id}")
-            return JSONResponse(status_code=status.HTTP_200_OK, content=response.json())
+            key = f"{movie_id}-detail"
+
+            data: dict | None = await db.get(key)
+
+            if not data:
+                response = await client.get(endpoint=f"/movie/{movie_id}")
+                data = response.json()
+
+                # Save response in DB
+                await db.set(key, data)
+
+            return JSONResponse(status_code=status.HTTP_200_OK, content=data)
 
         except Exception as _:
             return JSONResponse(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, content={
@@ -84,6 +106,7 @@ async def get_movie_details(
 @router.get("/videos/{movie_id}/")
 async def get_movie_videos(
     client: Annotated[CustomAsyncClient, Depends(get_client)],
+    db: Annotated[CustomAsyncRedisClient, Depends(get_db_client)],
     movie_id: int
 ) -> JSONResponse:
     """
@@ -92,8 +115,18 @@ async def get_movie_videos(
 
     async with client:
         try:
-            response = await client.get(endpoint=f"/movie/{movie_id}/videos")
-            return JSONResponse(status_code=status.HTTP_200_OK, content=response.json())
+            key = f"{movie_id}-video"
+
+            data: dict | None = await db.get(key)
+
+            if not data:
+                response = await client.get(endpoint=f"/movie/{movie_id}/videos")
+                data = response.json()
+
+                # Save response in DB
+                await db.set(key, data)
+
+            return JSONResponse(status_code=status.HTTP_200_OK, content=data)
 
         except Exception as _:
             return JSONResponse(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, content={
@@ -104,6 +137,7 @@ async def get_movie_videos(
 @router.get("/search/")
 async def search_movies(
     client: Annotated[CustomAsyncClient, Depends(get_client)],
+    db: Annotated[CustomAsyncRedisClient, Depends(get_db_client)],
     query: str
 ) -> JSONResponse:
     """
@@ -113,8 +147,19 @@ async def search_movies(
 
     async with client:
         try:
-            response = await client.get(endpoint="/search/movie", params={"query": query})
-            return JSONResponse(status_code=status.HTTP_200_OK, content=response.json())
+            # This is just for testing, It'll be replaced by UserID later on.
+            key = f"{1}-{query}-search"
+
+            data: dict | None = await db.get(key)
+
+            if not data:
+                response = await client.get(endpoint="/search/movie", params={"query": query})
+                data = response.json()
+
+                # Save response in DB
+                await db.set(key, data)
+
+            return JSONResponse(status_code=status.HTTP_200_OK, content=data)
 
         except Exception as _:
             return JSONResponse(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, content={
