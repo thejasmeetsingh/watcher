@@ -97,8 +97,8 @@ async def get_cache_client():
     Get common redis cache client
     """
 
-    host = os.getenv("DB_HOST")
-    port = os.getenv("DB_PORT")
+    host = os.getenv("REDIS_HOST")
+    port = os.getenv("REDIS_PORT")
 
     if not host or not port:
         raise KeyError("Cache credentials are not configured in env")
