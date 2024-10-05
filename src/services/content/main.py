@@ -1,6 +1,6 @@
 from fastapi import FastAPI, status
 
-from routes import router
+from api.routes import router
 
 
 def get_app() -> FastAPI:
