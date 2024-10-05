@@ -106,7 +106,4 @@ async def get_cache_client():
     cache = CustomAsyncRedisClient(host=host, port=int(port))
     await cache.connect()
 
-    try:
-        yield cache
-    except Exception as _:
-        await cache.close()
+    return cache
