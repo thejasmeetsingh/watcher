@@ -44,7 +44,7 @@ async def get_recommended_movies_by_genres(
 
 @router.get("/recommended/{movie_id}/")
 async def get_recommended_movies_by_movie_id(
-    user: Annotated[dict[str, str], Depends(get_user)],
+    _: Annotated[dict[str, str], Depends(get_user)],
     client: Annotated[CustomAsyncClient, Depends(get_client)],
     db: Annotated[CustomAsyncRedisClient, Depends(get_db_client)],
     movie_id: int
@@ -66,16 +66,6 @@ async def get_recommended_movies_by_movie_id(
                 # Save response in DB
                 await db.set(key, data)
 
-            # Fetch the favorite movie status for current user
-            fav_key = f"{user['id']}-{movie_id}"
-            is_favorite = await db.get(fav_key)
-
-            # Append the local data into the response
-            data.update({
-                "todo_item_id": user.get(movie_id),
-                "is_favorite": is_favorite
-            })
-
             return JSONResponse(status_code=status.HTTP_200_OK, content=data)
 
         except Exception as _:
@@ -86,7 +76,7 @@ async def get_recommended_movies_by_movie_id(
 
 @router.get("/detail/{movie_id}/")
 async def get_movie_details(
-    _: Annotated[dict[str, str], Depends(get_user)],
+    user: Annotated[dict[str, str], Depends(get_user)],
     client: Annotated[CustomAsyncClient, Depends(get_client)],
     db: Annotated[CustomAsyncRedisClient, Depends(get_db_client)],
     movie_id: int
@@ -107,6 +97,16 @@ async def get_movie_details(
 
                 # Save response in DB
                 await db.set(key, data)
+
+            # Fetch the favorite movie status for current user
+            fav_key = f"{user['id']}-{movie_id}"
+            is_favorite = await db.get(fav_key)
+
+            # Append the local data into the response
+            data.update({
+                "todo_item_id": user.get(movie_id),
+                "is_favorite": is_favorite
+            })
 
             return JSONResponse(status_code=status.HTTP_200_OK, content=data)
 
@@ -179,3 +179,53 @@ async def search_movies(
             return JSONResponse(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, content={
                 "message": "Internal server error"
             })
+
+
+@router.post("/favorite/{movie_id}/")
+async def mark_movie_favorite(
+    user: Annotated[dict[str, str], Depends(get_user)],
+    db: Annotated[CustomAsyncRedisClient, Depends(get_db_client)],
+    movie_id: int
+) -> JSONResponse:
+    """
+    Mark the given movie as favorite for the current user.
+    """
+
+    try:
+        key = f"{user['id']}-{movie_id}"
+
+        await db.set(key, True, 0)
+
+        return JSONResponse(status_code=status.HTTP_201_CREATED, content={
+            "message": "Movie marked as favorite"
+        })
+
+    except Exception as _:
+        return JSONResponse(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, content={
+            "message": "Internal server error"
+        })
+
+
+@router.delete("/favorite/{movie_id}/")
+async def remove_movie_favorite(
+    user: Annotated[dict[str, str], Depends(get_user)],
+    db: Annotated[CustomAsyncRedisClient, Depends(get_db_client)],
+    movie_id: int
+) -> JSONResponse:
+    """
+    Remove the given movie as favorite for the current user.
+    """
+
+    try:
+        key = f"{user['id']}-{movie_id}"
+
+        await db.delete(key)
+
+        return JSONResponse(status_code=status.HTTP_200_OK, content={
+            "message": "Movie removed as favorite"
+        })
+
+    except Exception as _:
+        return JSONResponse(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, content={
+            "message": "Internal server error"
+        })
