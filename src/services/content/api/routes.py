@@ -5,14 +5,14 @@ from fastapi.responses import JSONResponse
 
 from client import CustomAsyncClient, get_client
 from cache import CustomAsyncRedisClient, get_db_client
-from api.middleware import get_user_id
+from api.middleware import get_user
 
 router = APIRouter()
 
 
 @router.get("/recommended/")
 async def get_recommended_movies_by_genres(
-    user_id: Annotated[str, Depends(get_user_id)],
+    user: Annotated[dict[str, str], Depends(get_user)],
     client: Annotated[CustomAsyncClient, Depends(get_client)],
     db: Annotated[CustomAsyncRedisClient, Depends(get_db_client)]
 ) -> JSONResponse:
@@ -23,7 +23,7 @@ async def get_recommended_movies_by_genres(
 
     async with client:
         try:
-            key = user_id
+            key = user["id"]
 
             data: dict | None = await db.get(key)
 
@@ -44,7 +44,7 @@ async def get_recommended_movies_by_genres(
 
 @router.get("/recommended/{movie_id}/")
 async def get_recommended_movies_by_movie_id(
-    _: Annotated[str, Depends(get_user_id)],
+    user: Annotated[dict[str, str], Depends(get_user)],
     client: Annotated[CustomAsyncClient, Depends(get_client)],
     db: Annotated[CustomAsyncRedisClient, Depends(get_db_client)],
     movie_id: int
@@ -66,6 +66,16 @@ async def get_recommended_movies_by_movie_id(
                 # Save response in DB
                 await db.set(key, data)
 
+            # Fetch the favorite movie status for current user
+            fav_key = f"{user['id']}-{movie_id}"
+            is_favorite = await db.get(fav_key)
+
+            # Append the local data into the response
+            data.update({
+                "todo_item_id": user.get(movie_id),
+                "is_favorite": is_favorite
+            })
+
             return JSONResponse(status_code=status.HTTP_200_OK, content=data)
 
         except Exception as _:
@@ -76,7 +86,7 @@ async def get_recommended_movies_by_movie_id(
 
 @router.get("/detail/{movie_id}/")
 async def get_movie_details(
-    _: Annotated[str, Depends(get_user_id)],
+    _: Annotated[dict[str, str], Depends(get_user)],
     client: Annotated[CustomAsyncClient, Depends(get_client)],
     db: Annotated[CustomAsyncRedisClient, Depends(get_db_client)],
     movie_id: int
@@ -108,7 +118,7 @@ async def get_movie_details(
 
 @router.get("/videos/{movie_id}/")
 async def get_movie_videos(
-    _: Annotated[str, Depends(get_user_id)],
+    _: Annotated[dict[str, str], Depends(get_user)],
     client: Annotated[CustomAsyncClient, Depends(get_client)],
     db: Annotated[CustomAsyncRedisClient, Depends(get_db_client)],
     movie_id: int
@@ -140,7 +150,7 @@ async def get_movie_videos(
 
 @router.get("/search/")
 async def search_movies(
-    user_id: Annotated[str, Depends(get_user_id)],
+    user: Annotated[dict[str, str], Depends(get_user)],
     client: Annotated[CustomAsyncClient, Depends(get_client)],
     db: Annotated[CustomAsyncRedisClient, Depends(get_db_client)],
     query: str
@@ -152,7 +162,7 @@ async def search_movies(
 
     async with client:
         try:
-            key = f"{user_id}-{query}-search"
+            key = f"{user['id']}-{query}-search"
 
             data: dict | None = await db.get(key)
 

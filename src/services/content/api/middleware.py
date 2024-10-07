@@ -19,7 +19,7 @@ def get_jwt_payload(token: str) -> dict[str, str] | None:
         return None
 
 
-async def is_user_exists_in_cache(user_id: str) -> bool | None:
+async def get_user_data_from_cache(user_id: str) -> bool | None:
     """
     Check if user data exists in the centralized cache or not.
     """
@@ -27,13 +27,10 @@ async def is_user_exists_in_cache(user_id: str) -> bool | None:
     cache = await get_cache_client()
     user = await cache.get(user_id)
 
-    # If the return value by cache is dict,
-    # That means user exists in cache because that's how we were,
-    # Saving the user details in the user service.
-    return isinstance(user, dict)
+    return user
 
 
-async def get_user_id(request: Request) -> str:
+async def get_user(request: Request) -> str:
     """
     Validate the request by checking the "Authorization" in the headers,
     And weather or not it contains a valid JWT token.
@@ -62,10 +59,10 @@ async def get_user_id(request: Request) -> str:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN,
                             detail="Token is invalid or expired")
 
-    is_user_exists = await is_user_exists_in_cache(user_id)
+    user = await get_user_data_from_cache(user_id)
 
-    if not is_user_exists:
+    if not user:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN,
                             detail="Token is invalid or expired")
 
-    return user_id
+    return user
