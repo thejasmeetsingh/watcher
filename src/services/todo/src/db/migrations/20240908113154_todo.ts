@@ -17,7 +17,8 @@ const up = (knex: Knex): Knex.SchemaBuilder => {
       .notNullable()
       .defaultTo(knex.fn.now());
     table.uuid("user_id").notNullable();
-    table.uuid("movie_id").notNullable();
+    table.bigInteger("movie_id").notNullable();
+    table.json("movie").notNullable();
     table.boolean("is_completed").notNullable().defaultTo(false);
 
     table.unique(["user_id", "movie_id"], {
