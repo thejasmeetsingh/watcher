@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from "express";
 import { StatusCodes } from "http-status-codes";
 
-import { isUserExistsInCache } from "./cache";
+import { getUserFromCache } from "./cache";
 import { verifyToken } from "./jwt";
 
 export const jwtAuth = async (
@@ -39,7 +39,7 @@ export const jwtAuth = async (
 
   try {
     // Check if user exists in cache with the given ID
-    const userExists = await isUserExistsInCache(userID);
+    const userExists = await getUserFromCache(userID);
 
     if (!userExists) {
       return res

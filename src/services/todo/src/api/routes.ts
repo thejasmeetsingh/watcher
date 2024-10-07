@@ -4,6 +4,7 @@ import { validate } from "uuid";
 
 import { db } from "../db/config";
 import { jwtAuth } from "./middleware";
+import { updateUserInCache } from "./cache";
 
 const router = express.Router();
 const Todo = () => db("todo");
@@ -12,7 +13,7 @@ const Todo = () => db("todo");
 router.use(jwtAuth);
 
 // Columns which will be return as part of the response
-const columns = ["id", "created_at", "modified_at", "movie_id", "is_completed"];
+const columns = ["id", "created_at", "modified_at", "movie", "is_completed"];
 
 // Get list of items added by the user
 router.get("/list", async (req: Request, res: Response) => {
@@ -35,36 +36,33 @@ router.get("/list", async (req: Request, res: Response) => {
 
 // Add an item into DB and associate it with current user
 router.post("/add", async (req, res) => {
-  const movieID = req.body.movie_id;
-  let error = null;
+  const movie = req.body.movie;
 
-  // Check if movieID is present in request data
-  if (!movieID) {
-    error = "movie_id is required";
-  }
-
-  // Check if the movieID is a valid UUID or not
-  if (movieID && !validate(movieID)) {
-    error = "Invalid movie_id";
-  }
-
-  if (error) {
+  // Check if movie data is present in request data
+  if (!movie) {
     return res
       .status(StatusCodes.BAD_REQUEST)
       .json({
-        message: error,
+        message: "movie data is required",
       })
       .end();
   }
 
   try {
+    const movieID = movie.id;
+
     // Add item into the DB
     const [item] = await Todo()
       .insert({
+        movie,
         movie_id: movieID,
         user_id: req.userID,
       })
       .returning(columns);
+
+    // Update the user data in cache,
+    // To save the newly created todo item ID
+    await updateUserInCache(String(req.userID), movieID, item.id);
 
     return res
       .status(StatusCodes.CREATED)
@@ -173,8 +171,14 @@ router.delete("/delete/:id", async (req, res) => {
         .end();
     }
 
+    const movieID = item.movie_id;
+
     // Delete the item from DB
     await Todo().where({ id: itemID, user_id: req.userID }).del();
+
+    // Update the user data in cache,
+    // And save null instead of todo item ID.
+    await updateUserInCache(String(req.userID), movieID, null);
 
     return res
       .status(StatusCodes.OK)
