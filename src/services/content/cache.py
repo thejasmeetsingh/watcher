@@ -57,7 +57,9 @@ class CustomAsyncRedisClient:
         Set data for a given key
         """
 
-        if not expiry:
+        if expiry == 0:
+            expiry = None
+        elif expiry is None:
             expiry = self.expiry
 
         value = json.dumps(value)
