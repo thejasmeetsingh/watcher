@@ -104,7 +104,7 @@ async def get_movie_details(
 
             # Append the local data into the response
             data.update({
-                "todo_item_id": user.get(movie_id),
+                "todo_item_id": user.get(str(movie_id)),
                 "is_favorite": is_favorite
             })
 
