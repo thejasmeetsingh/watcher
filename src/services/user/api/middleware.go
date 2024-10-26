@@ -37,3 +37,23 @@ func (apiCfg *APIConfig) JwtAuth(ctx *fiber.Ctx, token string) (bool, error) {
 
 	return true, nil
 }
+
+// Prometheus middleware to record HTTP request timings
+func PrometheusMonitoring(ctx *fiber.Ctx) error {
+	// Record the time when the request is received
+	startTime := time.Now()
+
+	// Continue processing the request
+	err := ctx.Next()
+
+	// Find how much time it took to process the request, In seconds.
+	duration := time.Since(startTime).Seconds()
+
+	httpRequestsTotal := GetPromRequestTotal()
+	httpRequestDuration := GetPromRequestDuration()
+
+	httpRequestsTotal.WithLabelValues(ctx.Path(), ctx.Method()).Inc()
+	httpRequestDuration.WithLabelValues(ctx.Path(), ctx.Method()).Observe(duration)
+
+	return err
+}
