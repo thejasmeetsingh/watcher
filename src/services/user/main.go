@@ -5,10 +5,14 @@ import (
 	"os"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/middleware/adaptor"
 	"github.com/gofiber/fiber/v2/middleware/keyauth"
 	"github.com/gofiber/fiber/v2/middleware/logger"
+	"github.com/gofiber/fiber/v2/middleware/monitor"
 	"github.com/gofiber/fiber/v2/middleware/requestid"
 	"github.com/jackc/pgx/v5"
+	"github.com/prometheus/client_golang/prometheus"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 	log "github.com/sirupsen/logrus"
 	"github.com/thejasmeetsingh/watcher/src/services/user/api"
 	"github.com/thejasmeetsingh/watcher/src/services/user/database"
@@ -45,6 +49,18 @@ func main() {
 		DB:      conn,
 		Queries: database.New(conn),
 	}
+
+	// Add prometheus middleware, handler and fiber monitor
+	app.Use(api.PrometheusMonitoring)
+	app.Get("/metrics/", adaptor.HTTPHandler(promhttp.Handler()))
+	app.Get("/monitor/", monitor.New(monitor.Config{Title: "Monitor User Service"}))
+
+	// Initialize prometheus
+	httpRequestsTotal := api.GetPromRequestTotal()
+	httpRequestDuration := api.GetPromRequestDuration()
+
+	prometheus.MustRegister(httpRequestsTotal)
+	prometheus.MustRegister(httpRequestDuration)
 
 	// Configure routes
 	apiRouter := app.Group("/api/")
