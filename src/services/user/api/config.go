@@ -17,7 +17,7 @@ func GetPromRequestTotal() *prometheus.CounterVec {
 			Name: "http_requests_total",
 			Help: "Total number of HTTP requests.",
 		},
-		[]string{"handler", "method"},
+		[]string{"method", "path"},
 	)
 
 	return httpRequestsTotal
@@ -30,7 +30,7 @@ func GetPromRequestDuration() *prometheus.HistogramVec {
 			Help:    "HTTP request duration in seconds.",
 			Buckets: prometheus.DefBuckets,
 		},
-		[]string{"handler", "method"},
+		[]string{"method", "path", "status"},
 	)
 	return httpRequestDuration
 }

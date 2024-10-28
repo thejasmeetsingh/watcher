@@ -1,6 +1,7 @@
 package api
 
 import (
+	"strconv"
 	"time"
 
 	"github.com/gofiber/fiber/v2"
@@ -52,8 +53,11 @@ func PrometheusMonitoring(ctx *fiber.Ctx) error {
 	httpRequestsTotal := GetPromRequestTotal()
 	httpRequestDuration := GetPromRequestDuration()
 
-	httpRequestsTotal.WithLabelValues(ctx.Path(), ctx.Method()).Inc()
-	httpRequestDuration.WithLabelValues(ctx.Path(), ctx.Method()).Observe(duration)
+	// Fetch the response status code
+	resStatusCode := ctx.Response().StatusCode()
+
+	httpRequestsTotal.WithLabelValues(ctx.Method(), ctx.Path()).Inc()
+	httpRequestDuration.WithLabelValues(ctx.Method(), ctx.Path(), strconv.Itoa(resStatusCode)).Observe(duration)
 
 	return err
 }
