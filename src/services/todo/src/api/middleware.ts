@@ -3,6 +3,7 @@ import { StatusCodes } from "http-status-codes";
 
 import { getUserFromCache } from "./cache";
 import { verifyToken } from "./jwt";
+import { httpRequestTotal, httpRequestDuration } from "./prometheus";
 
 export const jwtAuth = async (
   req: Request,
@@ -64,4 +65,24 @@ export const jwtAuth = async (
       })
       .end();
   }
+};
+
+// Prometheus middleware to record HTTP request duration
+export const prometheusMonitoring = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  httpRequestTotal.inc({ method: req.method, path: req.path });
+
+  // Start the request timer
+  const timer: any = httpRequestDuration.startTimer();
+
+  // When the response is finished, end the timer
+  res.on("finish", () => {
+    timer({ method: req.method, path: req.path, status: res.statusCode });
+  });
+
+  // Call next middleware or handler
+  next();
 };
