@@ -1,9 +1,16 @@
 import os
+import time
 
 import jwt
-from fastapi import Request, HTTPException, status
+from fastapi import Request, Response, HTTPException, status
+from prometheus_client import Counter, Histogram
 
 from cache import get_cache_client
+from api.prometheus import get_http_request_duration, get_http_request_total
+
+# Initialize the http_request_total and http_request_duration
+http_request_total: Counter = get_http_request_total()
+http_request_duration: Histogram = get_http_request_duration()
 
 
 def get_jwt_payload(token: str) -> dict[str, str] | None:
@@ -66,3 +73,30 @@ async def get_user(request: Request) -> str:
                             detail="Token is invalid or expired")
 
     return user
+
+
+async def prometheus_monitoring(request: Request, call_next) -> None:
+    """
+    Record request related stats like: Total request count and request duration
+    on prometheus.
+    """
+
+    http_request_total.labels(method=request.method,
+                              path=request.url.path).inc()
+
+    # Record the time when the request is received
+    start_time = time.perf_counter()
+
+    # Continue processing the request
+    response: Response = await call_next(request)
+
+    # Find how much time it took to process the request, In seconds.
+    duration = time.perf_counter() - start_time
+
+    http_request_duration.labels(
+        method=request.method,
+        path=request.url.path,
+        status=response.status_code
+    ).observe(duration)
+
+    return response
