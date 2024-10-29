@@ -5,7 +5,7 @@ from fastapi.responses import JSONResponse
 
 from client import CustomAsyncClient, get_client
 from cache import CustomAsyncRedisClient, get_db_client
-from api.middleware import get_user
+from api.dependencies import get_user
 
 router = APIRouter()
 
