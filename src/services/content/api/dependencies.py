@@ -3,7 +3,7 @@ import os
 import jwt
 from fastapi import Request, HTTPException, status
 
-from cache import get_cache_client
+from api.cache import get_cache_client
 
 
 def get_jwt_payload(token: str) -> dict[str, str] | None:

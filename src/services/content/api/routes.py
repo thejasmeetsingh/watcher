@@ -3,8 +3,8 @@ from typing import Annotated
 from fastapi import APIRouter, Depends, status
 from fastapi.responses import JSONResponse
 
-from client import CustomAsyncClient, get_client
-from cache import CustomAsyncRedisClient, get_db_client
+from api.client import CustomAsyncClient, get_client
+from api.cache import CustomAsyncRedisClient, get_db_client
 from api.dependencies import get_user
 
 router = APIRouter()
