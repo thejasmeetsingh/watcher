@@ -66,4 +66,4 @@ async def prometheus_monitoring(request: Request, call_next) -> None:
 
 @app.get("/health-check/", status_code=status.HTTP_200_OK)
 async def health_check():
-    return {"message": "Content service is up & running"}
+    return {"message": "Watcher is up & running"}
