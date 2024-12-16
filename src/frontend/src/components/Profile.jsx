@@ -1,6 +1,5 @@
 import { useEffect, useRef, useState } from "react";
 import { Film, LogOut, LogIn, UserPlus } from "lucide-react";
-import "../../public/profile.png";
 
 export default function ({ isAuthenticated = false }) {
   const [isProfileOpen, setIsProfileOpen] = useState(false);
