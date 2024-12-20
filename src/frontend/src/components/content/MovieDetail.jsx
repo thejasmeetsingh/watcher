@@ -1,12 +1,24 @@
 import { useState, useRef, useEffect } from "react";
-import { Play, X, Star, Calendar, Clock, Globe } from "lucide-react";
+import {
+  Play,
+  X,
+  Star,
+  Calendar,
+  Clock,
+  Globe,
+  Heart,
+  BookmarkPlus,
+} from "lucide-react";
 
 import MovieRow from "./MovieRow";
 import MovieCard from "./MovieCard";
 import GalleryCarousel from "./GalleryCarousel";
+import MovieActionButton from "./MovieActionButton";
 
 export default function ({ movie }) {
   const [showTrailer, setShowTrailer] = useState(false);
+  const [isFavorite, setIsFavorite] = useState(false);
+  const [isInWatchlist, setIsInWatchlist] = useState(false);
   const modalRef = useRef(null);
 
   // Get first trailer (usually the main one)
@@ -117,6 +129,20 @@ export default function ({ movie }) {
                   Watch Trailer
                 </button>
               )}
+              <div className="flex items-center gap-3">
+                <MovieActionButton
+                  icon={Heart}
+                  label="Favorite"
+                  onClick={() => setIsFavorite(!isFavorite)}
+                  isActive={isFavorite}
+                />
+                <MovieActionButton
+                  icon={BookmarkPlus}
+                  label="Watchlist"
+                  onClick={() => setIsInWatchlist(!isInWatchlist)}
+                  isActive={isInWatchlist}
+                />
+              </div>
             </div>
           </div>
         </div>
@@ -198,7 +224,7 @@ export default function ({ movie }) {
         <div className="max-w-7xl mx-auto">
           <MovieRow
             title="You May Also Like"
-            items={movie.recommendations.results.slice(0, 20)}
+            items={movie.recommendations.results.slice(0, 10)}
             Card={MovieCard}
           />
         </div>

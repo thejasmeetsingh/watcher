@@ -6976,14 +6976,14 @@ function App() {
   return (
     <div>
       <Navbar />
-      <MovieDetail movie={movieDetail} />
-      {/* <div className="pb-6 shadow-lg shadow-transparent">
+      {/* <MovieDetail movie={movieDetail} /> */}
+      <div className="pb-6 shadow-lg shadow-transparent">
         <Slideshow />
       </div>
       <Row title="What's Popular" items={movies} Card={Card} />
       <Row title="Genres" items={genres} Card={Genres} />
       <Row title="Top Rated" items={movies} Card={Card} />
-      <Row title="Upcoming" items={movies} Card={Card} /> */}
+      <Row title="Upcoming" items={movies} Card={Card} />
     </div>
   );
 }
