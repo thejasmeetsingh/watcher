@@ -4,14 +4,14 @@ import { useRef, useState, useEffect } from "react";
 export default function () {
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [searchValue, setSearchValue] = useState("");
-  const searchContainerRef = useRef(null);
+  const containerRef = useRef(null);
 
   // Handle clicks outside the search container
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (
-        searchContainerRef.current &&
-        !searchContainerRef.current.contains(event.target) &&
+        containerRef.current &&
+        !containerRef.current.contains(event.target) &&
         !searchValue // Only close if search input is empty
       ) {
         setIsSearchOpen(false);
@@ -33,7 +33,7 @@ export default function () {
   };
 
   return (
-    <div className="relative flex items-center" ref={searchContainerRef}>
+    <div className="relative flex items-center" ref={containerRef}>
       {isSearchOpen ? (
         <button
           onClick={() => {
@@ -71,7 +71,7 @@ export default function () {
           onChange={(e) => setSearchValue(e.target.value)}
           placeholder="Search movies, TV shows..."
           className="w-full bg-gray-800 text-gray-100 rounded-full py-2 pl-4 pr-10 
-                  focus:outline-none focus:ring-2 focus:ring-yellow-400 
+                  focus:outline-none ring-2 ring-yellow-400 
                   placeholder:text-gray-400"
           autoFocus={isSearchOpen}
         />

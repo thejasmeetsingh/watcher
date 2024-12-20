@@ -135,7 +135,7 @@ export default function () {
         {slides.map((slide, index) => (
           <div
             key={slide.id}
-            className={`absolute w-full h-full transform transition-all duration-700 ease-in-out
+            className={`absolute w-full h-full transform transition-all duration-400 ease-in-out
               ${
                 index === currSlide
                   ? "opacity-100 translate-x-0 scale-100"
@@ -164,7 +164,7 @@ export default function () {
 
             <div
               className={`absolute bottom-0 left-0 right-0 p-12 bg-gradient-to-t from-black/80 to-transparent
-              transform transition-all duration-700 delay-100 ease-out
+              transform transition-all duration-300 delay-100 ease-out
               ${
                 index === currSlide
                   ? "translate-y-0 opacity-100"
@@ -172,7 +172,7 @@ export default function () {
               }`}
             >
               <h1
-                className={`text-white text-5xl font-bold mb-4 transform transition-all duration-700 delay-200
+                className={`text-white text-5xl font-bold mb-4 transform transition-all duration-400 delay-200
                 ${
                   index === currSlide
                     ? "translate-x-0 opacity-100"
@@ -184,7 +184,7 @@ export default function () {
                 {slide.title}
               </h1>
               <p
-                className={`text-gray-200 text-xl transform transition-all truncate duration-700 delay-300
+                className={`text-gray-200 text-xl transform transition-all truncate duration-400 delay-300
                 ${
                   index === currSlide
                     ? "translate-x-0 opacity-100"
@@ -203,7 +203,7 @@ export default function () {
       <button
         onClick={prevSlide}
         className="absolute left-4 top-1/2 transform -translate-y-1/2 text-white p-2 rounded-full
-          bg-black/30 hover:bg-black/50 transition-all duration-300 hover:scale-110
+          bg-black/30 hover:bg-black/50 transition-all duration-400 hover:scale-110
           opacity-75 hover:opacity-100"
         aria-label="Previous slide"
       >
@@ -212,7 +212,7 @@ export default function () {
       <button
         onClick={nextSlide}
         className="absolute right-4 top-1/2 transform -translate-y-1/2 text-white p-2 rounded-full
-          bg-black/30 hover:bg-black/50 transition-all duration-300 hover:scale-110
+          bg-black/30 hover:bg-black/50 transition-all duration-400 hover:scale-110
           opacity-75 hover:opacity-100"
         aria-label="Next slide"
       >
@@ -224,7 +224,7 @@ export default function () {
           <button
             key={index}
             onClick={() => goToSlide(index)}
-            className={`h-2 rounded-full transition-all duration-500 ease-out transform
+            className={`h-2 rounded-full transition-all duration-400 ease-out transform
               ${
                 index === currSlide
                   ? "w-8 bg-yellow-400 scale-100"
