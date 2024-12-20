@@ -108,7 +108,7 @@ export default function ({ item }) {
             <div className="flex items-center space-x-2 text-sm text-gray-200 mb-2">
               <Calendar className="w-4 h-4 ml-2 drop-shadow" />
               <span className="text-shadow-sm">
-                {new Date(item.release_date).toLocaleDateString("en-US")}
+                {new Date(item.release_date).toLocaleDateString("local")}
               </span>
             </div>
 

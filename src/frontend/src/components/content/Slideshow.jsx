@@ -184,7 +184,7 @@ export default function () {
                 {slide.title}
               </h1>
               <p
-                className={`text-gray-200 text-xl transform transition-all truncate duration-400 delay-300
+                className={`text-gray-200 text-xl transform transition-all duration-400 delay-300
                 ${
                   index === currSlide
                     ? "translate-x-0 opacity-100"

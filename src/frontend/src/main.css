@@ -5,3 +5,16 @@
 :root {
   background-color: rgb(30 41 59);
 }
+
+@keyframes progress {
+  0% {
+    width: 0;
+  }
+  100% {
+    width: 100%;
+  }
+}
+
+.animate-progress {
+  animation: progress 5s linear;
+}
