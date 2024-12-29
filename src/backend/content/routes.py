@@ -14,6 +14,35 @@ from watchlist.queries import is_watchlist_item_exists
 router = APIRouter()
 
 
+@router.get("/genres/")
+async def get_genres(
+    client: Annotated[CustomAsyncClient, Depends(get_client)],
+    cache: Annotated[CustomAsyncRedisClient, Depends(get_cache_client)]
+) -> JSONResponse:
+    """
+    Get list of genres
+    """
+
+    async with client:
+        try:
+            key = "genres"
+
+            data: dict | None = await cache.get(key)
+
+            if not data:
+                response = await client.get(endpoint="/genre/movie/list")
+                data = response.json().get("genres", [])
+
+                # Save response in cache
+                await cache.set(key, data)
+
+            return JSONResponse(data, status_code=status.HTTP_200_OK)
+
+        except Exception as e:
+            raise HTTPException(detail=str(
+                e), status_code=status.HTTP_500_INTERNAL_SERVER_ERROR) from e
+
+
 @router.get("/recommended/")
 async def get_recommended_movies_by_genres(
     user: Annotated[User, Depends(get_user)],
@@ -78,11 +107,11 @@ async def get_recommended_movies_by_movie_id(
 
 @router.get("/detail/{movie_id}/")
 async def get_movie_details(
-    user: Annotated[User, Depends(get_user)],
     client: Annotated[CustomAsyncClient, Depends(get_client)],
     session: Annotated[AsyncSession, Depends(get_async_db_session)],
     cache: Annotated[CustomAsyncRedisClient, Depends(get_cache_client)],
-    movie_id: int
+    movie_id: int,
+    user: Annotated[User | None, Depends(get_user)] = None
 ) -> JSONResponse:
     """
     Get details of a movie
@@ -94,16 +123,21 @@ async def get_movie_details(
 
             data: dict | None = await cache.get(key)
 
-            # Fetch the favorite movie status for current user
-            fav_key = f"{user.id}-{movie_id}"
-            is_favorite = await cache.get(fav_key)
+            is_added_in_watchlist = False
+            is_favorite = False
 
-            # Check if current user has already added the movie
-            # into his/her watchlist
-            is_added_in_watchlist = await is_watchlist_item_exists(session, user, movie_id)
+            if user:
+                # Fetch the favorite movie status for current user
+                fav_key = f"{user.id}-{movie_id}"
+                is_favorite = await cache.get(fav_key)
+
+                # Check if current user has already added the movie
+                # into his/her watchlist
+                is_added_in_watchlist = await is_watchlist_item_exists(session, user, movie_id)
 
             if not data:
-                response = await client.get(endpoint=f"/movie/{movie_id}")
+                response = await client.get(endpoint=f"/movie/{movie_id}",
+                                            params={"append_to_response": "recommendations,videos,images"})
                 data = response.json()
 
                 # Save response in cache

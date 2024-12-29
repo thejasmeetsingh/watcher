@@ -1,6 +1,7 @@
 import time
 
 from fastapi import FastAPI, Request, Response, status
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi_pagination import add_pagination
 from prometheus_client import Counter, Histogram, make_asgi_app
 
@@ -12,11 +13,20 @@ from content.routes import router as c_router
 def get_app() -> FastAPI:
     _app = FastAPI()
 
+    # Add CORS Middleware
+    _app.add_middleware(
+        CORSMiddleware,
+        allow_origins=["http://localhost:5173"],
+        allow_credentials=True,
+        allow_methods=["*"],
+        allow_headers=["*"]
+    )
+
     _app.title = "Watcher"
     _app.description = "Watcher Backend"
-    _app.include_router(u_router, prefix="/api")
-    _app.include_router(w_router, prefix="/api")
-    _app.include_router(c_router, prefix="/api")
+    _app.include_router(u_router, prefix="/api/auth")
+    _app.include_router(w_router, prefix="/api/watchlist")
+    _app.include_router(c_router, prefix="/api/content")
 
     # Add prometheus ASGI middleware to route /metrics requests
     metrics_app = make_asgi_app()
