@@ -1,6 +1,8 @@
 import { useState, useEffect } from "react";
 
-export default function ({ images }) {
+import { getImageURL } from "../utils";
+
+export default function GalleryCarousel({ images }) {
   const [isHovering, setIsHovering] = useState(false);
   const [activeSlide, setActiveSlide] = useState(0);
 
@@ -21,7 +23,6 @@ export default function ({ images }) {
       onMouseEnter={() => setIsHovering(true)}
       onMouseLeave={() => setIsHovering(false)}
     >
-      {/* Slides */}
       <div className="relative h-full">
         {images.map((image, index) => (
           <div
@@ -31,7 +32,7 @@ export default function ({ images }) {
             }`}
           >
             <img
-              src={`https://image.tmdb.org/t/p/original${image.file_path}`}
+              src={getImageURL(image.file_path)}
               alt={`Scene ${index + 1}`}
               className="w-full h-full object-cover"
             />
@@ -39,7 +40,6 @@ export default function ({ images }) {
         ))}
       </div>
 
-      {/* Navigation dots */}
       <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2 z-10">
         {images.map((_, index) => (
           <button

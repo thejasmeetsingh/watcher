@@ -1,10 +1,14 @@
-import { Search, X } from "lucide-react";
 import { useRef, useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { Search, X } from "lucide-react";
 
-export default function () {
-  const [isSearchOpen, setIsSearchOpen] = useState(false);
-  const [searchValue, setSearchValue] = useState("");
+import { useContentContext } from "../context/content";
+
+export default function SearchBar() {
+  const navigate = useNavigate();
   const containerRef = useRef(null);
+  const { searchValue, setSearchValue, isSearchOpen, setIsSearchOpen } =
+    useContentContext();
 
   // Handle clicks outside the search container
   useEffect(() => {
@@ -28,7 +32,7 @@ export default function () {
     const value = searchValue.trim();
 
     if (value) {
-      console.log("Searching for:", value);
+      navigate(`/search?q=${encodeURIComponent(value)}`);
     }
   };
 

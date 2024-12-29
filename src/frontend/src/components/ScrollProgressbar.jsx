@@ -1,4 +1,4 @@
-export default function ({ progress }) {
+export default function ScrollProgressbar({ progress }) {
   return (
     <div className="w-48 h-1 bg-gray-800 rounded-full overflow-hidden">
       <div

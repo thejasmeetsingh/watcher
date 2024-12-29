@@ -1,4 +1,4 @@
-export default function ({ icon: Icon, label, onClick, isActive }) {
+export default function ActionButton({ icon: Icon, label, onClick, isActive }) {
   return (
     <button
       onClick={onClick}

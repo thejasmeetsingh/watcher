@@ -1,24 +1,32 @@
-import Profile from "./Profile";
-import Search from "./Search";
+import { Link, useNavigate } from "react-router-dom";
 
-export default function () {
+import { useContentContext } from "../context/content";
+import ProfileDropdown from "./ProfileDropdown";
+import Search from "./SearchBar";
+import LogoutModal from "./LogoutModal";
+
+export default function Navbar() {
+  const navigate = useNavigate();
+  const { closeSearchBar } = useContentContext();
+
   return (
     <div className="px-6 relative z-10">
       <div className="max-w-7xl mx-auto flex items-center justify-between">
         <div className="flex items-center">
-          <a
-            href="/"
+          <Link
             className="text-2xl font-semibold text-yellow-400"
             onClick={(e) => {
               e.preventDefault();
+              closeSearchBar();
+              navigate("/");
             }}
           >
             <img className="w-24 object-cover" src="./logo.png" alt="Logo" />
-          </a>
+          </Link>
         </div>
         <div className="flex items-center space-x-6">
           <Search />
-          <Profile />
+          <ProfileDropdown />
         </div>
       </div>
     </div>

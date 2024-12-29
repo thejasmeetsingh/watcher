@@ -1,7 +1,8 @@
 import { useRef, useState } from "react";
-import ScrollProgressbar from "../ScrollProgressbar";
 
-export default function ({ title, items, Card }) {
+import ScrollProgressbar from "./ScrollProgressbar";
+
+export default function CardRow({ title, items, Card }) {
   const scrollRef = useRef(null);
   const [scrollProgress, setScrollProgress] = useState(0);
 

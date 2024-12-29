@@ -1,9 +1,14 @@
 import { useEffect, useRef, useState } from "react";
-import { Film, LogOut, LogIn, UserPlus } from "lucide-react";
+import { Link } from "react-router-dom";
+import { Film, LogOut, UserPlus } from "lucide-react";
 
-export default function ({ isAuthenticated = false }) {
+import { useAuthContext } from "../context/auth";
+
+export default function ProfileDropdown() {
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const profileDropdownRef = useRef(null);
+
+  const { isAuthenticated, setIsLogoutModalOpen } = useAuthContext();
 
   // Handle clicks outside the profile container
   useEffect(() => {
@@ -52,30 +57,27 @@ export default function ({ isAuthenticated = false }) {
                 <Film size={16} className="mr-2" />
                 Watchlist
               </a>
-              <a
-                href="/logout"
+              <Link
+                onClick={(e) => {
+                  e.preventDefault();
+                  setIsLogoutModalOpen(true);
+                }}
                 className="flex items-center px-4 py-2 text-sm text-gray-300 hover:bg-gray-700 hover:text-yellow-400"
               >
                 <LogOut size={16} className="mr-2" />
                 Logout
-              </a>
+              </Link>
             </>
           ) : (
             <>
-              <a
-                href="/login"
-                className="flex items-center px-4 py-2 text-sm text-gray-300 hover:bg-gray-700 hover:text-yellow-400"
-              >
-                <LogIn size={16} className="mr-2" />
-                Login
-              </a>
-              <a
-                href="/signup"
+              <Link
+                key="auth"
+                to="/join"
                 className="flex items-center px-4 py-2 text-sm text-gray-300 hover:bg-gray-700 hover:text-yellow-400"
               >
                 <UserPlus size={16} className="mr-2" />
-                Sign Up
-              </a>
+                Join Watcher!
+              </Link>
             </>
           )}
         </div>
