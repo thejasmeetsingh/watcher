@@ -23,7 +23,7 @@ function App() {
     checkUserAuth();
   }, [isAuthenticated]);
 
-  const contentWithNavbar = (Comp) => {
+  const commonLayout = (Comp) => {
     return (
       <div>
         <Navbar />
@@ -40,10 +40,10 @@ function App() {
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/" element={contentWithNavbar(HomePage)} />
-        <Route path="/content/:id" element={contentWithNavbar(MovieDetail)} />
-        <Route path="/genre/:id" element={contentWithNavbar(GenrePage)} />
-        <Route path="/search" element={contentWithNavbar(SearchPage)} />
+        <Route path="/" element={commonLayout(HomePage)} />
+        <Route path="/content/:id" element={commonLayout(MovieDetail)} />
+        <Route path="/genre/:id" element={commonLayout(GenrePage)} />
+        <Route path="/search" element={commonLayout(SearchPage)} />
         <Route path="/join" element={<AuthPage />} />
       </Routes>
     </BrowserRouter>

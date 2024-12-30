@@ -32,7 +32,7 @@ export default function ProfileDropdown() {
         onClick={() => setIsProfileOpen(!isProfileOpen)}
       >
         <img
-          src="./profile.png"
+          src="/images/profile.png"
           alt="Profile"
           className="w-full h-full object-cover"
         />

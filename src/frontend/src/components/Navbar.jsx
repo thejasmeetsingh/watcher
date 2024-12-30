@@ -3,7 +3,6 @@ import { Link, useNavigate } from "react-router-dom";
 import { useContentContext } from "../context/content";
 import ProfileDropdown from "./ProfileDropdown";
 import Search from "./SearchBar";
-import LogoutModal from "./LogoutModal";
 
 export default function Navbar() {
   const navigate = useNavigate();
@@ -21,7 +20,11 @@ export default function Navbar() {
               navigate("/");
             }}
           >
-            <img className="w-24 object-cover" src="./logo.png" alt="Logo" />
+            <img
+              className="w-24 object-cover"
+              src="/images/logo.png"
+              alt="Logo"
+            />
           </Link>
         </div>
         <div className="flex items-center space-x-6">

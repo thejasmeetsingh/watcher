@@ -12,6 +12,7 @@ import {
 } from "lucide-react";
 
 import { getMovieDetailAPI } from "../api/content";
+import { useContentContext } from "../context/content";
 import { getImageURL, formatDate } from "../utils";
 import MovieRow from "../components/CardRow";
 import MovieCard from "../components/MovieCard";
@@ -21,11 +22,15 @@ import Loader from "../components/Loader";
 
 export default function MovieDetail() {
   const { id } = useParams();
+
   const [movie, setMovie] = useState(null);
   const [showTrailer, setShowTrailer] = useState(false);
   const [isFavorite, setIsFavorite] = useState(false);
   const [isInWatchlist, setIsInWatchlist] = useState(false);
+
   const modalRef = useRef(null);
+
+  const { initGenres } = useContentContext();
 
   // Fetch movie details
   useEffect(() => {
@@ -34,6 +39,7 @@ export default function MovieDetail() {
       setMovie(result);
     };
 
+    initGenres();
     initMovie();
   }, [id]);
 

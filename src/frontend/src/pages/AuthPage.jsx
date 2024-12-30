@@ -20,6 +20,7 @@ export default function AuthPage() {
 
   const { globalError, setGlobalError, updateAuthToken } = useAuthContext();
 
+  // Call signIn API
   const signIn = async () => {
     if (email && password) {
       const response = await signInAPI({ email, password });
@@ -36,6 +37,7 @@ export default function AuthPage() {
     }
   };
 
+  // Call singUp API
   const signUp = async () => {
     if (email && password && name && age) {
       const response = await singUpAPI({ email, password, name, age });
@@ -65,6 +67,8 @@ export default function AuthPage() {
       token = await signUp();
     }
 
+    // Update the token if loggedIn successfully
+    // And navigate the user to the homepage.
     if (token) {
       updateAuthToken(token);
       navigate("/");

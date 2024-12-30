@@ -6,18 +6,49 @@ import MovieCard from "./MovieCard";
 export default function List({ param, apiFunction }) {
   const [movies, setMovies] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [page, setPage] = useState(1);
+  const [page, setPage] = useState(null);
+  const [totalPages, setTotalPages] = useState(null);
+  const [prevParam, setPrevParam] = useState("");
+
   const loader = useRef(null);
 
   const fetchData = async () => {
-    setLoading(true);
+    if ((!page && !totalPages) || page < totalPages) {
+      setLoading(true);
 
-    const newItems = await apiFunction(param, page);
-    setMovies((prev) => [...prev, ...newItems]);
+      const response = await apiFunction(param, page);
 
-    setLoading(false);
-    setPage((prev) => prev + 1);
+      // update current page and total pages
+      setTotalPages(response.total_pages);
+      setPage(response.page + 1);
+
+      setMovies((prev) => [...prev, ...response.results]);
+      setPrevParam(param);
+
+      setLoading(false);
+    }
   };
+
+  // if params is changed then remove the current items.
+  // And re-initialize the required state variables.
+  const removeCurrItems = () => {
+    setLoading(true);
+    setMovies([]);
+    setPage(null);
+    setTotalPages(null);
+  };
+
+  useEffect(() => {
+    if (param !== prevParam) {
+      removeCurrItems();
+    }
+
+    const timeoutID = setTimeout(() => {
+      fetchData();
+    }, 1000);
+
+    return () => clearTimeout(timeoutID);
+  }, [param]);
 
   useEffect(() => {
     const observer = new IntersectionObserver((entries) => {

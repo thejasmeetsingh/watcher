@@ -8,6 +8,7 @@ export default function MovieCard({ item }) {
   const navigate = useNavigate();
   const { genres, closeSearchBar } = useContentContext();
 
+  // Find and retrieve genre names based on the genre IDs given in the item.
   const itemGenres = genres
     .filter((genre) => item.genre_ids.includes(genre.id))
     .map((genre) => genre.name)
