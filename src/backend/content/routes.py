@@ -43,26 +43,48 @@ async def get_genres(
                 e), status_code=status.HTTP_500_INTERNAL_SERVER_ERROR) from e
 
 
-@router.get("/recommended/")
+@router.get("/featured-movies/")
 async def get_recommended_movies_by_genres(
-    user: Annotated[User, Depends(get_user)],
     client: Annotated[CustomAsyncClient, Depends(get_client)],
     cache: Annotated[CustomAsyncRedisClient, Depends(get_cache_client)]
 ) -> JSONResponse:
     """
-    Get recommended movies based on the genres that the,
-    Current user has set in his/her profile.
+    Get featured movies based, which is the combination of:
+    now playing, popular, top rated and upcoming movies.
     """
 
     async with client:
         try:
-            key = str(user.id)
+            key = "featured_movies"
 
             data: dict | None = await cache.get(key)
 
             if not data:
-                response = await client.get(endpoint="/discover/movie")
-                data = response.json()
+                # Fetch movies which are currently playing in theaters
+                response = await client.get(endpoint="/movie/now_playing")
+                now_playing = response.json().get("results", [])
+
+                now_playing.sort(key=lambda x: x["popularity"],
+                                 reverse=True)
+
+                # Fetch movies which are popular
+                response = await client.get(endpoint="/movie/popular")
+                popular = response.json().get("results", [])
+
+                # Fetch top rated movies
+                response = await client.get(endpoint="/movie/top_rated")
+                top_rated = response.json().get("results", [])
+
+                # Fetch upcoming movies
+                response = await client.get(endpoint="/movie/upcoming")
+                upcoming = response.json().get("results", [])
+
+                data = {
+                    "now_playing": now_playing[:5],
+                    "popular": popular,
+                    "top_rated": top_rated,
+                    "upcoming": upcoming
+                }
 
                 # Save response in cache
                 await cache.set(key, data)
@@ -74,28 +96,34 @@ async def get_recommended_movies_by_genres(
                 e), status_code=status.HTTP_500_INTERNAL_SERVER_ERROR) from e
 
 
-@router.get("/recommended/{movie_id}/")
-async def get_recommended_movies_by_movie_id(
-    _: Annotated[User, Depends(get_user)],
+@router.get("/genre/{genre_id}/")
+async def get_movies_by_genre(
     client: Annotated[CustomAsyncClient, Depends(get_client)],
     cache: Annotated[CustomAsyncRedisClient, Depends(get_cache_client)],
-    movie_id: int
+    genre_id: int,
+    page: int = 1,
+    user: Annotated[User | None, Depends(get_user)] = None
 ) -> JSONResponse:
     """
-    Get related-recommended movies based on the given movie ID.
+    Get movies by based on given genreID
     """
 
     async with client:
         try:
-            key = f"{movie_id}-recommendation"
+            key = f"{genre_id}-{page}-movies_by_genre"
 
             data: dict | None = await cache.get(key)
 
             if not data:
-                response = await client.get(endpoint=f"/movie/{movie_id}/recommendations")
+                # Include mature or R-rated movies if user is authenticated
+                # And is at least 18 years old.
+                include_adult = user and user.age >= 18
+
+                response = await client.get(endpoint="/discover/movie",
+                                            params={"with_genres": genre_id, "page": page, "include_adult": include_adult})
                 data = response.json()
 
-                # Save response in cache
+                # Save response in DB
                 await cache.set(key, data)
 
             return JSONResponse(data, status_code=status.HTTP_200_OK)
@@ -156,43 +184,13 @@ async def get_movie_details(
                 e), status_code=status.HTTP_500_INTERNAL_SERVER_ERROR) from e
 
 
-@router.get("/videos/{movie_id}/")
-async def get_movie_videos(
-    _: Annotated[User, Depends(get_user)],
-    client: Annotated[CustomAsyncClient, Depends(get_client)],
-    cache: Annotated[CustomAsyncRedisClient, Depends(get_cache_client)],
-    movie_id: int
-) -> JSONResponse:
-    """
-    Get videos related to a movie.
-    """
-
-    async with client:
-        try:
-            key = f"{movie_id}-video"
-
-            data: dict | None = await cache.get(key)
-
-            if not data:
-                response = await client.get(endpoint=f"/movie/{movie_id}/videos")
-                data = response.json()
-
-                # Save response in DB
-                await cache.set(key, data)
-
-            return JSONResponse(data, status_code=status.HTTP_200_OK)
-
-        except Exception as e:
-            raise HTTPException(detail=str(
-                e), status_code=status.HTTP_500_INTERNAL_SERVER_ERROR) from e
-
-
 @router.get("/search/")
 async def search_movies(
-    user: Annotated[User, Depends(get_user)],
     client: Annotated[CustomAsyncClient, Depends(get_client)],
     cache: Annotated[CustomAsyncRedisClient, Depends(get_cache_client)],
-    query: str
+    query: str,
+    page: int = 1,
+    user: Annotated[User | None, Depends(get_user)] = None
 ) -> JSONResponse:
     """
     Search movies based on the given query.
@@ -201,12 +199,17 @@ async def search_movies(
 
     async with client:
         try:
-            key = f"{user.id}-{query}-search"
+            key = f"{query}-{page}-search"
 
             data: dict | None = await cache.get(key)
 
             if not data:
-                response = await client.get(endpoint="/search/movie", params={"query": query})
+                # Include mature or R-rated movies if user is authenticated
+                # And is at least 18 years old.
+                include_adult = user and user.age >= 18
+
+                response = await client.get(endpoint="/search/movie",
+                                            params={"query": query, "page": page, "include_adult": include_adult})
                 data = response.json()
 
                 # Save response in DB
