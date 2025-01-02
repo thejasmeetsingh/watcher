@@ -9,6 +9,9 @@ import GenrePage from "./pages/GenrePage";
 import SearchPage from "./pages/SearchPage";
 import AuthPage from "./pages/AuthPage";
 import LogoutModal from "./components/LogoutModal";
+import WatchlistPage from "./pages/WatchlistPage";
+import PublicOnlyRoute from "./routes/PublicOnlyRoute";
+import ProtectedRoute from "./routes/ProtectedRoute";
 
 function App() {
   const {
@@ -44,7 +47,16 @@ function App() {
         <Route path="/content/:id" element={commonLayout(MovieDetail)} />
         <Route path="/genre/:id" element={commonLayout(GenrePage)} />
         <Route path="/search" element={commonLayout(SearchPage)} />
-        <Route path="/join" element={<AuthPage />} />
+        <Route
+          path="/join"
+          element={<PublicOnlyRoute>{commonLayout(AuthPage)}</PublicOnlyRoute>}
+        />
+        <Route
+          path="/watchlist"
+          element={
+            <ProtectedRoute>{commonLayout(WatchlistPage)}</ProtectedRoute>
+          }
+        />
       </Routes>
     </BrowserRouter>
   );

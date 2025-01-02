@@ -1,60 +1,16 @@
-import { useRef, useState, useEffect } from "react";
+import { useRef, useEffect } from "react";
 import { Loader2 } from "lucide-react";
 
 import MovieCard from "./MovieCard";
 
-export default function List({ param, apiFunction }) {
-  const [movies, setMovies] = useState([]);
-  const [loading, setLoading] = useState(false);
-  const [page, setPage] = useState(null);
-  const [totalPages, setTotalPages] = useState(null);
-  const [prevParam, setPrevParam] = useState("");
-
+export default function List({ movies, apiFunction, loading, hasMore }) {
   const loader = useRef(null);
-
-  const fetchData = async () => {
-    if ((!page && !totalPages) || page < totalPages) {
-      setLoading(true);
-
-      const response = await apiFunction(param, page);
-
-      // update current page and total pages
-      setTotalPages(response.total_pages);
-      setPage(response.page + 1);
-
-      setMovies((prev) => [...prev, ...response.results]);
-      setPrevParam(param);
-
-      setLoading(false);
-    }
-  };
-
-  // if params is changed then remove the current items.
-  // And re-initialize the required state variables.
-  const removeCurrItems = () => {
-    setLoading(true);
-    setMovies([]);
-    setPage(null);
-    setTotalPages(null);
-  };
-
-  useEffect(() => {
-    if (param !== prevParam) {
-      removeCurrItems();
-    }
-
-    const timeoutID = setTimeout(() => {
-      fetchData();
-    }, 1000);
-
-    return () => clearTimeout(timeoutID);
-  }, [param]);
 
   useEffect(() => {
     const observer = new IntersectionObserver((entries) => {
       const first = entries[0];
-      if (first.isIntersecting && !loading) {
-        fetchData();
+      if (first.isIntersecting && !loading && hasMore) {
+        apiFunction();
       }
     });
 

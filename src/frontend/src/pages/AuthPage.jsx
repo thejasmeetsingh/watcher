@@ -85,7 +85,11 @@ export default function AuthPage() {
       <div className="max-w-md w-full space-y-8">
         <div className="backdrop-blur-xl bg-white/5 p-8 rounded-2xl shadow-2xl border border-white/10">
           <div className="flex justify-center mb-2">
-            <img className="w-32 object-cover" src="./logo.png" alt="Logo" />
+            <img
+              className="w-32 object-cover"
+              src="/images/logo.png"
+              alt="Logo"
+            />
           </div>
 
           <h2 className="text-center text-3xl font-bold text-white mb-8">
