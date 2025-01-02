@@ -6,7 +6,7 @@ import uuid
 
 from sqlalchemy import select, update, delete
 from sqlalchemy.ext.asyncio import AsyncSession
-from fastapi_pagination import LimitOffsetParams
+from fastapi_pagination import Params
 from fastapi_pagination.ext.sqlalchemy import paginate
 
 from user.models import User
@@ -14,9 +14,12 @@ from watchlist.models import WatchList
 from watchlist.schemas import WatchListAddItemRequest, WatchListUpdateItemRequest
 
 
-async def get_user_watchlist(session: AsyncSession, user: User, params: LimitOffsetParams):
+async def get_user_watchlist(session: AsyncSession, user: User, params: Params, is_complete: bool | None):
     query = select(WatchList).where(WatchList.user_id == user.id).order_by(
         WatchList.created_at.desc())
+
+    if is_complete is not None:
+        query = query.filter_by(is_complete=is_complete)
 
     results = await paginate(session, query, params)
     return results
@@ -46,7 +49,9 @@ async def is_watchlist_item_exists(session: AsyncSession, user: User, movie_id: 
                                     user.id, WatchList.movie_id == movie_id)
 
     result = await session.execute(query)
-    return result.fetchone() is not None
+    watchlist_item = result.fetchone()
+
+    return watchlist_item[0].id if watchlist_item else None
 
 
 async def update_watchlist_item(session: AsyncSession, watchlist_item_id: uuid.UUID,

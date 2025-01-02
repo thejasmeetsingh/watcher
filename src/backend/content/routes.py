@@ -1,3 +1,4 @@
+import uuid
 from typing import Annotated
 
 from fastapi import APIRouter, Depends, HTTPException, status
@@ -173,7 +174,8 @@ async def get_movie_details(
 
             # Append the local data into the response
             data.update({
-                "is_added_in_watchlist": is_added_in_watchlist,
+                "is_added_in_watchlist": str(is_added_in_watchlist)
+                if isinstance(is_added_in_watchlist, uuid.UUID) else is_added_in_watchlist,
                 "is_favorite": bool(is_favorite)
             })
 
