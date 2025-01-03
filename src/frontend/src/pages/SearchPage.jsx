@@ -8,7 +8,7 @@ import GlobalError from "../components/GlobalError";
 
 export default function SearchPage() {
   const { searchValue } = useContentContext();
-  const { globalError, setGlobalError } = useAuthContext();
+  const { authToken, globalError, setGlobalError } = useAuthContext();
 
   const [movies, setMovies] = useState([]);
   const [hasMore, setHasMore] = useState(true);
@@ -33,12 +33,12 @@ export default function SearchPage() {
     }, 1000);
 
     return () => clearTimeout(timeoutID);
-  }, [searchValue]);
+  }, [authToken, searchValue]);
 
   const fetchSearchedMovies = async () => {
     setLoading(true);
 
-    const response = await searchMovieAPI(searchValue, page);
+    const response = await searchMovieAPI(authToken, searchValue, page);
 
     if (response.errors) {
       setGlobalError(response.errors.default);

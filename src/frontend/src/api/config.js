@@ -29,3 +29,13 @@ export const getErrorMessages = (response) => {
 
   return { errors: errorMessages };
 };
+
+export const getAuthHeader = (authToken) => {
+  const header = authToken
+    ? {
+        Authorization: `Bearer ${authToken}`,
+      }
+    : undefined;
+
+  return header;
+};

@@ -3,7 +3,7 @@ import { Calendar, Check, X } from "lucide-react";
 
 import { useContentContext } from "../context/content";
 import { getImageURL, formatDate } from "../utils";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
 export default function MovieCard({
   item,
@@ -11,15 +11,11 @@ export default function MovieCard({
   removeFromWatchlist,
 }) {
   const navigate = useNavigate();
-  const { genres, closeSearchBar, initGenres } = useContentContext();
+  const { genres, closeSearchBar } = useContentContext();
 
   const [isCompleted, setIsCompleted] = useState(
     item.watchlist ? item.watchlist.is_complete : false
   );
-
-  useEffect(() => {
-    initGenres();
-  }, []);
 
   // Find and retrieve genre names based on the genre IDs given in the item.
   const itemGenres = genres

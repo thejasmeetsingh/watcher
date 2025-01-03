@@ -2,6 +2,7 @@ import { useEffect } from "react";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 
 import { useAuthContext } from "./context/auth";
+import { useContentContext } from "./context/content";
 import Navbar from "./components/navbar";
 import HomePage from "./pages/HomePage";
 import MovieDetail from "./pages/MovieDetailPage";
@@ -21,6 +22,11 @@ function App() {
     setIsLogoutModalOpen,
     handleLogout,
   } = useAuthContext();
+  const { initGenres } = useContentContext();
+
+  useEffect(() => {
+    initGenres();
+  }, []);
 
   useEffect(() => {
     checkUserAuth();

@@ -8,11 +8,9 @@ import GenreCard from "../components/GenreCard";
 import Loader from "../components/Loader";
 
 export default function HomePage() {
-  const { genres, featuredMovies, initGenres, initFeaturedMovies } =
-    useContentContext();
+  const { genres, featuredMovies, initFeaturedMovies } = useContentContext();
 
   useEffect(() => {
-    initGenres();
     initFeaturedMovies();
   }, []);
 

@@ -1,4 +1,4 @@
-import { getAxiosConfig, getErrorMessages } from "./config";
+import { getAuthHeader, getAxiosConfig, getErrorMessages } from "./config";
 
 const axios = getAxiosConfig();
 
@@ -27,20 +27,10 @@ export const fetchFeaturedMoviesAPI = async () => {
   }
 };
 
-export const getMovieDetailAPI = async (movieID) => {
+export const getMovieDetailAPI = async (authToken, movieID) => {
   try {
-    const response = await axios.get(`content/detail/${movieID}/`);
-    return response.data;
-  } catch (error) {
-    console.log("error:", error);
-    return getErrorMessages(error.response);
-  }
-};
-
-export const getMoviesByGenreAPI = async (genreID, page) => {
-  try {
-    const response = await axios.get(`content/genre/${genreID}/`, {
-      params: { page },
+    const response = await axios.get(`content/detail/${movieID}/`, {
+      headers: getAuthHeader(authToken),
     });
     return response.data;
   } catch (error) {
@@ -49,10 +39,52 @@ export const getMoviesByGenreAPI = async (genreID, page) => {
   }
 };
 
-export const searchMovieAPI = async (query, page) => {
+export const getMoviesByGenreAPI = async (authToken, genreID, page) => {
   try {
-    const response = await axios.get(`content/search/`, {
+    const response = await axios.get(`content/genre/${genreID}/`, {
+      params: { page },
+      headers: getAuthHeader(authToken),
+    });
+    return response.data;
+  } catch (error) {
+    console.log("error:", error);
+    return getErrorMessages(error.response);
+  }
+};
+
+export const searchMovieAPI = async (authToken, query, page) => {
+  try {
+    const response = await axios.get("content/search/", {
       params: { query, page },
+      headers: getAuthHeader(authToken),
+    });
+    return response.data;
+  } catch (error) {
+    console.log("error:", error);
+    return getErrorMessages(error.response);
+  }
+};
+
+export const markMovieAsFavorite = async (authToken, movieID) => {
+  try {
+    const response = await axios.post(
+      `content/favorite/${movieID}/`,
+      undefined,
+      {
+        headers: getAuthHeader(authToken),
+      }
+    );
+    return response.data;
+  } catch (error) {
+    console.log("error:", error);
+    return getErrorMessages(error.response);
+  }
+};
+
+export const removeMovieAsFavorite = async (authToken, movieID) => {
+  try {
+    const response = await axios.delete(`content/favorite/${movieID}/`, {
+      headers: getAuthHeader(authToken),
     });
     return response.data;
   } catch (error) {

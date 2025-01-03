@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
+
 import { getImageURL } from "../utils";
 
 export default function Slideshow({ items }) {

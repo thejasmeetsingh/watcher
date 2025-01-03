@@ -11,37 +11,49 @@ import {
   BookmarkPlus,
 } from "lucide-react";
 
-import { getMovieDetailAPI } from "../api/content";
-import { useContentContext } from "../context/content";
+import { useAuthContext } from "../context/auth";
+import {
+  getMovieDetailAPI,
+  markMovieAsFavorite,
+  removeMovieAsFavorite,
+} from "../api/content";
 import { getImageURL, formatDate } from "../utils";
+import { addItemAPI, removeItemAPI } from "../api/watchlist";
 import MovieRow from "../components/CardRow";
 import MovieCard from "../components/MovieCard";
 import GalleryCarousel from "../components/GalleryCarousel";
-import MovieActionButton from "../components/ActionButton";
+import ActionButton from "../components/ActionButton";
 import Loader from "../components/Loader";
+import GlobalError from "../components/GlobalError";
 
 export default function MovieDetail() {
   const { id } = useParams();
+  const { isAuthenticated, authToken, globalError, setGlobalError } =
+    useAuthContext();
 
   const [movie, setMovie] = useState(null);
   const [showTrailer, setShowTrailer] = useState(false);
   const [isFavorite, setIsFavorite] = useState(false);
-  const [isInWatchlist, setIsInWatchlist] = useState(false);
+  const [isInWatchlist, setIsInWatchlist] = useState(null);
 
   const modalRef = useRef(null);
 
-  const { initGenres } = useContentContext();
-
   // Fetch movie details
   useEffect(() => {
-    const initMovie = async () => {
-      const result = await getMovieDetailAPI(id);
-      setMovie(result);
-    };
+    const timeoutID = setTimeout(() => {
+      initMovie();
+    }, 1000);
 
-    initGenres();
-    initMovie();
-  }, [id]);
+    return () => clearTimeout(timeoutID);
+  }, [authToken]);
+
+  const initMovie = async () => {
+    const result = await getMovieDetailAPI(authToken, id);
+
+    setIsFavorite(result.is_favorite);
+    setIsInWatchlist(result.is_added_in_watchlist);
+    setMovie(result);
+  };
 
   // Handle click outside modal
   useEffect(() => {
@@ -69,9 +81,11 @@ export default function MovieDetail() {
   }
 
   // Get first trailer (usually the main one)
-  const mainTrailer = movie.videos.results.find(
-    (video) => video.site === "YouTube" && video.official
-  );
+  const mainTrailer = movie.videos
+    ? movie.videos.results.find(
+        (video) => video.site === "YouTube" && video.official
+      )
+    : null;
 
   // Format runtime to hours and minutes
   const formatRuntime = (minutes) => {
@@ -80,8 +94,44 @@ export default function MovieDetail() {
     return `${hours}h ${remainingMinutes}m`;
   };
 
+  const toggleIsFavorite = async () => {
+    const newIsFavoriteVal = !isFavorite;
+    let response;
+
+    if (newIsFavoriteVal) {
+      response = await markMovieAsFavorite(authToken, id);
+    } else {
+      response = await removeMovieAsFavorite(authToken, id);
+    }
+
+    if (response.errors) {
+      setGlobalError(response.errors.default);
+    } else {
+      setIsFavorite(newIsFavoriteVal);
+    }
+  };
+
+  const toggleIsInWatchlist = async () => {
+    let response;
+
+    if (isInWatchlist) {
+      response = await removeItemAPI(authToken, isInWatchlist);
+    } else {
+      response = await addItemAPI(authToken, id);
+    }
+
+    if (response.errors) {
+      setGlobalError(response.errors.default);
+    } else {
+      setIsInWatchlist(isInWatchlist ? null : response.data.id);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gray-900 text-white">
+      {globalError && (
+        <GlobalError message={globalError} onClose={() => setGlobalError("")} />
+      )}
       <div className="relative h-[70vh] w-full">
         <div className="absolute inset-0">
           <img
@@ -145,20 +195,22 @@ export default function MovieDetail() {
                   Watch Trailer
                 </button>
               )}
-              <div className="flex items-center gap-3">
-                <MovieActionButton
-                  icon={Heart}
-                  label="Favorite"
-                  onClick={() => setIsFavorite(!isFavorite)}
-                  isActive={isFavorite}
-                />
-                <MovieActionButton
-                  icon={BookmarkPlus}
-                  label="Watchlist"
-                  onClick={() => setIsInWatchlist(!isInWatchlist)}
-                  isActive={isInWatchlist}
-                />
-              </div>
+              {isAuthenticated && (
+                <div className="flex items-center gap-3">
+                  <ActionButton
+                    icon={Heart}
+                    label="Favorite"
+                    onClick={toggleIsFavorite}
+                    isActive={isFavorite}
+                  />
+                  <ActionButton
+                    icon={BookmarkPlus}
+                    label="Watchlist"
+                    onClick={toggleIsInWatchlist}
+                    isActive={isInWatchlist}
+                  />
+                </div>
+              )}
             </div>
           </div>
         </div>
@@ -172,7 +224,7 @@ export default function MovieDetail() {
               <p className="text-gray-300 leading-relaxed">{movie.overview}</p>
             </section>
 
-            {movie.images.backdrops.length > 0 && (
+            {movie.images && movie.images.backdrops.length > 0 && (
               <GalleryCarousel
                 images={movie.images.backdrops
                   .sort((a, b) => a.vote_count - b.vote_count)
@@ -232,11 +284,11 @@ export default function MovieDetail() {
         </div>
       </div>
 
-      {movie.recommendations.results.length > 0 && (
+      {movie.recommendations && movie.recommendations.results.length > 0 && (
         <div className="max-w-7xl mx-auto">
           <MovieRow
             title="You May Also Like"
-            items={movie.recommendations.results.slice(0, 10)}
+            items={movie.recommendations.results}
             Card={MovieCard}
           />
         </div>

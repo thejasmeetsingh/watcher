@@ -1,12 +1,6 @@
-import { getAxiosConfig, getErrorMessages } from "./config";
+import { getAuthHeader, getAxiosConfig, getErrorMessages } from "./config";
 
 const axios = getAxiosConfig();
-
-const getAuthHeader = (authToken) => {
-  return {
-    Authorization: `Bearer ${authToken}`,
-  };
-};
 
 export const fetchWatchlistAPI = async (authToken, page, isComplete) => {
   try {
@@ -58,7 +52,7 @@ export const updateItemAPI = async (authToken, itemID, isComplete) => {
 
 export const removeItemAPI = async (authToken, itemID) => {
   try {
-    const response = await axios.put(`watchlist/remove-item/${itemID}/`, {
+    const response = await axios.delete(`watchlist/remove-item/${itemID}/`, {
       headers: getAuthHeader(authToken),
     });
     return response.data;
