@@ -152,7 +152,7 @@ async def get_movie_details(
 
             data: dict | None = await cache.get(key)
 
-            is_added_in_watchlist = False
+            is_added_in_watchlist = None
             is_favorite = False
 
             if user:
@@ -237,7 +237,7 @@ async def mark_movie_favorite(
     try:
         key = f"{user.id}-{movie_id}"
 
-        await cache.set(key, True, 0)
+        await cache.set(key, True)
 
         return JSONResponse({
             "message": strings.MOVIE_MARKED_FAVORITE_SUCCESSFULLY
