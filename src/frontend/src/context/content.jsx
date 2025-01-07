@@ -10,17 +10,20 @@ export default function ContentProvider({ children }) {
   const [searchValue, setSearchValue] = useState("");
   const [isSearchOpen, setIsSearchOpen] = useState(false);
 
+  // Call genre API and update the data in the state.
   const initGenres = async () => {
     const results = await fetchGenresAPI();
     setGenres(results);
   };
 
+  // Call featureMovies API and update the data in the state.
   const initFeaturedMovies = async () => {
     const results = await fetchFeaturedMoviesAPI();
 
     setFeaturedMovies(results);
   };
 
+  // Helper function to close nav searchbar from a centralized place.
   const closeSearchBar = () => {
     setSearchValue("");
     setIsSearchOpen(false);

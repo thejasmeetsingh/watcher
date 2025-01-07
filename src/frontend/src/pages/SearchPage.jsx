@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import { searchMovieAPI } from "../api/content";
 import { useContentContext } from "../context/content";
 import { useAuthContext } from "../context/auth";
+
 import List from "../components/List";
 import GlobalError from "../components/GlobalError";
 
@@ -22,6 +23,8 @@ export default function SearchPage() {
   };
 
   useEffect(() => {
+    // Reset the data whenever autToken or the search query is updated,
+    // So the updated data can shown.
     resetData();
 
     if (!searchValue) {
@@ -35,6 +38,7 @@ export default function SearchPage() {
     return () => clearTimeout(timeoutID);
   }, [authToken, searchValue]);
 
+  // Call the search API and fetch the movies based on the search query
   const fetchSearchedMovies = async () => {
     setLoading(true);
 

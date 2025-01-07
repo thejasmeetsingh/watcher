@@ -3,6 +3,7 @@ import { BrowserRouter, Route, Routes } from "react-router-dom";
 
 import { useAuthContext } from "./context/auth";
 import { useContentContext } from "./context/content";
+
 import Navbar from "./components/navbar";
 import HomePage from "./pages/HomePage";
 import MovieDetail from "./pages/MovieDetailPage";
@@ -25,13 +26,17 @@ function App() {
   const { initGenres } = useContentContext();
 
   useEffect(() => {
+    // Fetch and initialize genres list
     initGenres();
   }, []);
 
   useEffect(() => {
+    // Check if user is logged in or not
     checkUserAuth();
   }, [isAuthenticated]);
 
+  // Common function to return a common layout component,
+  // Which will be used in all pages.
   const commonLayout = (Comp) => {
     return (
       <div>

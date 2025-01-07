@@ -19,6 +19,7 @@ import {
 } from "../api/content";
 import { getImageURL, formatDate } from "../utils";
 import { addItemAPI, removeItemAPI } from "../api/watchlist";
+
 import MovieRow from "../components/CardRow";
 import MovieCard from "../components/MovieCard";
 import GalleryCarousel from "../components/GalleryCarousel";
@@ -38,7 +39,6 @@ export default function MovieDetail() {
 
   const modalRef = useRef(null);
 
-  // Fetch movie details
   useEffect(() => {
     const timeoutID = setTimeout(() => {
       initMovie();
@@ -47,6 +47,7 @@ export default function MovieDetail() {
     return () => clearTimeout(timeoutID);
   }, [authToken]);
 
+  // Fetch movie details from the API
   const initMovie = async () => {
     const result = await getMovieDetailAPI(authToken, id);
 
@@ -55,7 +56,7 @@ export default function MovieDetail() {
     setMovie(result);
   };
 
-  // Handle click outside modal
+  // Handle click outside the trailer modal
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (modalRef.current && !modalRef.current.contains(event.target)) {
@@ -72,6 +73,7 @@ export default function MovieDetail() {
     };
   }, [showTrailer]);
 
+  // Show loader until the movie details are available
   if (!movie) {
     return (
       <div>
@@ -94,6 +96,7 @@ export default function MovieDetail() {
     return `${hours}h ${remainingMinutes}m`;
   };
 
+  // Mark/Un-mark the movie as favorite.
   const toggleIsFavorite = async () => {
     const newIsFavoriteVal = !isFavorite;
     let response;
@@ -111,6 +114,7 @@ export default function MovieDetail() {
     }
   };
 
+  // Add/Remove the the movie from the watchlist.
   const toggleIsInWatchlist = async () => {
     let response;
 

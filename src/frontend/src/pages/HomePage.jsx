@@ -1,6 +1,7 @@
 import { useEffect } from "react";
 
 import { useContentContext } from "../context/content";
+
 import Slideshow from "../components/Slideshow";
 import CardRow from "../components/CardRow";
 import MovieCard from "../components/MovieCard";
@@ -11,9 +12,11 @@ export default function HomePage() {
   const { genres, featuredMovies, initFeaturedMovies } = useContentContext();
 
   useEffect(() => {
+    // Fetch the featured movies from the API
     initFeaturedMovies();
   }, []);
 
+  // Show loader until the genres and the featured movies are available
   if (!genres.length || !featuredMovies) {
     return (
       <div>

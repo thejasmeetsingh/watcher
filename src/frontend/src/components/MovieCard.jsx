@@ -17,7 +17,7 @@ export default function MovieCard({
     item.watchlist ? item.watchlist.is_complete : false
   );
 
-  // Find and retrieve genre names based on the genre IDs given in the item.
+  // Find and retrieve genre names based on the genre IDs given in the item object.
   const itemGenres = genres
     .filter((genre) => item.genre_ids.includes(genre.id))
     .map((genre) => genre.name)
@@ -101,6 +101,9 @@ export default function MovieCard({
     </div>
   );
 
+  // If item object contains watchlist details,
+  // Then return content only as we are not allowing user to goto,
+  // The movie details from watchlist page.
   return item.watchlist ? (
     content
   ) : (

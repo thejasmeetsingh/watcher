@@ -4,6 +4,7 @@ import { useParams } from "react-router-dom";
 import { useContentContext } from "../context/content";
 import { getMoviesByGenreAPI } from "../api/content";
 import { useAuthContext } from "../context/auth";
+
 import GenreBanner from "../components/GenreBanner";
 import List from "../components/List";
 import Loader from "../components/Loader";
@@ -39,6 +40,7 @@ export default function GenrePage() {
     setLoading(false);
   };
 
+  // Show loader until the genres are available
   if (!genres.length) {
     return (
       <div>
@@ -47,6 +49,7 @@ export default function GenrePage() {
     );
   }
 
+  // Find specific genre name using the given genreID
   const genre = genres.find((obj) => obj.id === parseInt(id));
 
   return (

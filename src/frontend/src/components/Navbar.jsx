@@ -1,6 +1,7 @@
 import { Link, useNavigate } from "react-router-dom";
 
 import { useContentContext } from "../context/content";
+
 import ProfileDropdown from "./ProfileDropdown";
 import Search from "./SearchBar";
 

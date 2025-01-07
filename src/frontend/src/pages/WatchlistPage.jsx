@@ -7,6 +7,7 @@ import {
   updateItemAPI,
 } from "../api/watchlist";
 import { useAuthContext } from "../context/auth";
+
 import GlobalError from "../components/GlobalError";
 import Watchlist from "../components/Watchlist";
 
@@ -19,6 +20,8 @@ export default function WatchlistPage() {
   const [page, setPage] = useState(1);
   const [selectedFilter, setSelectedFilter] = useState("all");
 
+  // A temporary var for mapping readable filter value to the values,
+  // Which'll be send to the API
   const filters = { all: null, completed: true, pending: false };
 
   const resetData = () => {
@@ -28,6 +31,7 @@ export default function WatchlistPage() {
   };
 
   useEffect(() => {
+    // Reset the data if filter is changed.
     resetData();
 
     const timeoutID = setTimeout(() => {
@@ -37,6 +41,7 @@ export default function WatchlistPage() {
     return () => clearTimeout(timeoutID);
   }, [selectedFilter]);
 
+  // Fetch user watchlist from the API based on the selectedFilter.
   const fetchWatchlist = async () => {
     setLoading(true);
 
@@ -61,6 +66,9 @@ export default function WatchlistPage() {
     setLoading(false);
   };
 
+  // Helper function to remove the movie from current state,
+  // if user marked/un-marked the movies as complete or,
+  // remove the movie from the watchlist.
   const removeItemFromCurrSet = (itemID) => {
     setMovies(movies.filter((movie) => movie.watchlist.id !== itemID));
   };
@@ -78,7 +86,7 @@ export default function WatchlistPage() {
     }
   };
 
-  // Handle removing movie from watchlist
+  // Handle removing the movie from watchlist
   const removeFromWatchlist = async (itemID) => {
     const response = await removeItemAPI(authToken, itemID);
 

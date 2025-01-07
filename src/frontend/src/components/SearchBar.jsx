@@ -5,10 +5,11 @@ import { Search, X } from "lucide-react";
 import { useContentContext } from "../context/content";
 
 export default function SearchBar() {
-  const navigate = useNavigate();
-  const containerRef = useRef(null);
   const { searchValue, setSearchValue, isSearchOpen, setIsSearchOpen } =
     useContentContext();
+
+  const navigate = useNavigate();
+  const containerRef = useRef(null);
 
   // Handle clicks outside the search container
   useEffect(() => {

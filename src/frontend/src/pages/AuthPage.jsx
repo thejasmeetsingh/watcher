@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 
 import { useAuthContext } from "../context/auth";
 import { signInAPI, singUpAPI } from "../api/auth";
+
 import InputField from "../components/InputField";
 import GlobalError from "../components/GlobalError";
 
@@ -61,6 +62,7 @@ export default function AuthPage() {
 
     let token;
 
+    // Retrieve token from the login/signin API response
     if (isLogin) {
       token = await signIn();
     } else {

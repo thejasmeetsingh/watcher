@@ -8,6 +8,7 @@ export default function AuthProvider({ children }) {
   const [globalError, setGlobalError] = useState("");
   const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
 
+  // Check if authToken is present else retrieve from localStorage.
   const checkUserAuth = () => {
     if (authToken) {
       setIsAuthenticated(true);
@@ -18,6 +19,7 @@ export default function AuthProvider({ children }) {
     }
   };
 
+  // Update authToken in state and in localStorage
   const updateAuthToken = (token) => {
     setAuthToken(token);
     localStorage.setItem("authToken", token);
@@ -25,6 +27,7 @@ export default function AuthProvider({ children }) {
     checkUserAuth();
   };
 
+  // Remove authToken from state and from localStorage
   const handleLogout = () => {
     if (isAuthenticated) {
       localStorage.removeItem("authToken");
