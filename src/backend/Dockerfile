@@ -1,5 +1,9 @@
 FROM python:3.12-alpine
 
+LABEL org.opencontainers.image.source="https://github.com/thejasmeetsingh/watcher"
+LABEL org.opencontainers.image.description="Watcher Backend Image"
+LABEL org.opencontainers.image.licenses="MIT"
+
 RUN apk add --no-cache build-base libffi-dev
 RUN pip install --upgrade pip
 
