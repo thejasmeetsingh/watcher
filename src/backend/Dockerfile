@@ -16,6 +16,6 @@ RUN pip install -r requirements.txt
 
 COPY . .
 
-EXPOSE 3000
+EXPOSE 8000
 
-ENTRYPOINT [ "fastapi", "dev", "main.py", "--host", "0.0.0.0", "--port", "3000" ]
+ENTRYPOINT [ "fastapi", "dev", "main.py", "--host", "0.0.0.0", "--port", "8000" ]
