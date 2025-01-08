@@ -1,6 +1,6 @@
 # Watcher
 
-A dynamic content recommendation and management system designed to master Kubernetes through hands-on experience.
+A dynamic movie database where you can explore a wide range of movies and their details, whether they are past releases, currently playing, or upcoming.
 
 ## Architecture
 
