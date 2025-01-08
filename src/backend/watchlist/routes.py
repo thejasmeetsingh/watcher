@@ -7,16 +7,25 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import exc
 from fastapi_pagination import Params
 
+import strings
 from dependencies import get_async_db_session, get_user, get_cache_client
 from cache import CustomAsyncRedisClient
+
 from user.models import User
 from watchlist.models import WatchList
-from watchlist.queries import (get_user_watchlist, get_watchlist_item, add_watchlist_item,
-                               update_watchlist_item, delete_watchlist_item)
-from watchlist.schemas import WatchList as WatchListSchema, WatchListAddItemRequest, WatchListUpdateItemRequest
-from content.client import CustomAsyncClient, get_client
-
-import strings
+from watchlist.queries import (
+    get_user_watchlist,
+    get_watchlist_item,
+    add_watchlist_item,
+    update_watchlist_item,
+    delete_watchlist_item
+)
+from watchlist.schemas import (
+    WatchList as WatchListSchema,
+    WatchListAddItemRequest,
+    WatchListUpdateItemRequest
+)
+from content.api_client import CustomAsyncClient, get_client
 
 router = APIRouter()
 
@@ -27,12 +36,12 @@ def parse_watchlist_obj_to_dict(obj: WatchList) -> dict[str, Any]:
 
 @router.get("/")
 async def get_watchlist(
-        session: Annotated[AsyncSession, Depends(get_async_db_session)],
-        user: Annotated[User, Depends(get_user)],
-        cache: Annotated[CustomAsyncRedisClient, Depends(get_cache_client)],
-        page: int = 1,
-        size: int = 20,
-        is_complete: bool | None = None
+    session: Annotated[AsyncSession, Depends(get_async_db_session)],
+    user: Annotated[User, Depends(get_user)],
+    cache: Annotated[CustomAsyncRedisClient, Depends(get_cache_client)],
+    page: int = 1,
+    size: int = 20,
+    is_complete: bool | None = None
 ) -> JSONResponse:
     try:
         params = Params(page=page, size=size)
@@ -70,11 +79,11 @@ async def get_watchlist(
 
 @router.post("/add-item/")
 async def add_item_in_watchlist(
-        session: Annotated[AsyncSession, Depends(get_async_db_session)],
-        user: Annotated[User, Depends(get_user)],
-        client: Annotated[CustomAsyncClient, Depends(get_client)],
-        cache: Annotated[CustomAsyncRedisClient, Depends(get_cache_client)],
-        request: WatchListAddItemRequest
+    session: Annotated[AsyncSession, Depends(get_async_db_session)],
+    user: Annotated[User, Depends(get_user)],
+    client: Annotated[CustomAsyncClient, Depends(get_client)],
+    cache: Annotated[CustomAsyncRedisClient, Depends(get_cache_client)],
+    request: WatchListAddItemRequest
 ) -> JSONResponse:
     try:
         item = await add_watchlist_item(session, user,

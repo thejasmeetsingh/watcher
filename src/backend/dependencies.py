@@ -56,7 +56,7 @@ async def get_user(request: Request) -> User | None:
     if is_error:
         # If content related APIs is being called except the content "favorite" API
         # Then don't raise the auth error since content APIs are accessible for
-        # non-authenticated user as well
+        # non-authenticated users as well
         path = request.url.components.path
         if "content" in path and "favorite" not in path:
             return None

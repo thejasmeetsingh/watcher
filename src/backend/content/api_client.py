@@ -5,9 +5,8 @@ import env
 
 class CustomAsyncClient(AsyncClient):
     """
-    Custom async client which will store
-    basic properties like: BaseURL, headers
-    which will be used in all API call
+    Custom async API client which will store basic properties like:
+    BaseURL and headers, Which will be used in all API call
     to the MovieDB service.
     """
 

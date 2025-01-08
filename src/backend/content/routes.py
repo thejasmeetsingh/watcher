@@ -8,8 +8,9 @@ from sqlalchemy.ext.asyncio import AsyncSession
 import strings
 from cache import CustomAsyncRedisClient
 from dependencies import get_user, get_cache_client, get_async_db_session
-from content.client import CustomAsyncClient, get_client
+
 from user.models import User
+from content.api_client import CustomAsyncClient, get_client
 from watchlist.queries import is_watchlist_item_exists
 
 router = APIRouter()
@@ -21,7 +22,7 @@ async def get_genres(
     cache: Annotated[CustomAsyncRedisClient, Depends(get_cache_client)]
 ) -> JSONResponse:
     """
-    Get list of genres
+    Get list of genres from the movieDB service.
     """
 
     async with client:
@@ -50,7 +51,7 @@ async def get_recommended_movies_by_genres(
     cache: Annotated[CustomAsyncRedisClient, Depends(get_cache_client)]
 ) -> JSONResponse:
     """
-    Get featured movies based, which is the combination of:
+    Get featured movies from movieDB service, which is the combination of:
     now playing, popular, top rated and upcoming movies.
     """
 
@@ -106,7 +107,7 @@ async def get_movies_by_genre(
     user: Annotated[User | None, Depends(get_user)] = None
 ) -> JSONResponse:
     """
-    Get movies by based on given genreID
+    Get movies based on the given genre_id.
     """
 
     async with client:
@@ -143,7 +144,7 @@ async def get_movie_details(
     user: Annotated[User | None, Depends(get_user)] = None
 ) -> JSONResponse:
     """
-    Get details of a movie
+    Get details of a movie from the movieDB service.
     """
 
     async with client:

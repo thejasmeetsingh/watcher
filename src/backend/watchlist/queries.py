@@ -1,5 +1,5 @@
 """
-ORM queries which will be used in WatchList APIs
+ORM queries which will be used in WatchList API modules
 """
 
 import uuid

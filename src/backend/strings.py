@@ -1,5 +1,5 @@
 """
-Contains string constants which will be throughout the project.
+Contains string constants which will be used throughout the project.
 """
 
 INVALID_EMAIL = "Invalid email address"

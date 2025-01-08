@@ -1,5 +1,5 @@
 """
-Contains WatchList schemas which will be in related APIs and ORM queries as input.
+Contains WatchList schemas which will be used in related APIs and ORM queries as input.
 """
 
 from datetime import datetime
