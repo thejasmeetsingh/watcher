@@ -5,7 +5,8 @@
 Discover a vibrant, ever-evolving movie database that invites you to explore an extensive collection of films—whether they're timeless classics, currently screening hits, or highly anticipated future releases. Dive deep into each movie’s details, and curate your own personal watchlist to effortlessly track and organize your cinematic journey.
 
 ## Architecture
-![architecture](https://github.com/user-attachments/assets/c8413400-d15b-4ce2-91ec-11f4f2387853)
+
+![architecture](https://github.com/user-attachments/assets/03e378ff-7fc2-4548-bb14-fd8e7b69656d)
 
 ## ToDo
 
