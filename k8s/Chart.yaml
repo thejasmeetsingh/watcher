@@ -1,0 +1,5 @@
+apiVersion: v2
+name: watcher-services
+description: Helm chart for Watcher Services architecture with multi-container pods
+version: 0.1.0
+type: application

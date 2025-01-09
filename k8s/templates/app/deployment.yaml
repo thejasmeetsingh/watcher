@@ -1,0 +1,52 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}-backend
+  namespace: {{ .Values.app.namespace }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: backend
+  template:
+    metadata:
+      labels:
+        app: backend
+    spec:
+      volumes:
+      - name: postgres-data
+        persistentVolumeClaim:
+          claimName: {{ .Release.Name }}-postgres-pvc
+      containers:
+      - name: backend
+        image: "{{ .Values.app.backend.image.repository }}:{{ .Values.app.backend.image.tag }}"
+        resources:
+          {{- toYaml .Values.app.backend.resources | nindent 12 }}
+        envFrom:
+        - configMapRef:
+            name: {{ .Release.Name }}-app-config
+        - secretRef:
+            name: {{ .Release.Name }}-app-secrets
+      - name: postgres
+        image: "{{ .Values.app.database.image.repository }}:{{ .Values.app.database.image.tag }}"
+        resources:
+          {{- toYaml .Values.app.database.resources | nindent 12 }}
+        env:
+        - name: POSTGRES_USER
+          valueFrom:
+            secretKeyRef:
+              name: {{ .Release.Name }}-app-secrets
+              key: DB_USER
+        - name: POSTGRES_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: {{ .Release.Name }}-app-secrets
+              key: DB_PASSWORD
+        - name: POSTGRES_DB
+          valueFrom:
+            secretKeyRef:
+              name: {{ .Release.Name }}-app-secrets
+              key: DB_NAME
+        volumeMounts:
+        - name: postgres-data
+          mountPath: /var/lib/postgresql/data

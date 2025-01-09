@@ -1,0 +1,66 @@
+global:
+  environment: production
+
+app:
+  namespace: app
+  backend:
+    image:
+      repository: ghcr.io/thejasmeetsingh/watcher:latest
+      tag: latest
+      pullPolicy: IfNotPresent
+    resources:
+      limits:
+        cpu: 1
+        memory: 1Gi
+      requests:
+        cpu: 500m
+        memory: 512Mi
+  database:
+    image:
+      repository: postgres
+      tag: "16.1-alpine3.18"
+    persistence:
+      enabled: true
+      size: 10Gi
+    resources:
+      limits:
+        cpu: 1
+        memory: 1Gi
+      requests:
+        cpu: 500m
+        memory: 512Mi
+
+cache:
+  namespace: cache
+  image:
+    repository: redis
+    tag: "7.2.3-alpine"
+  persistence:
+    enabled: true
+    size: 5Gi
+  resources:
+    limits:
+      cpu: 500m
+      memory: 512Mi
+
+monitoring:
+  namespace: monitoring
+  prometheus:
+    image:
+      repository: prom/prometheus
+      tag: latest
+    resources:
+      limits:
+        cpu: 1
+        memory: 1Gi
+  grafana:
+    image:
+      repository: grafana/grafana
+      tag: latest
+    resources:
+      limits:
+        cpu: 500m
+        memory: 512Mi
+    persistence:
+      enabled: true
+      size: 5Gi
