@@ -1,35 +1,44 @@
 apiVersion: v1
-kind: PersistentVolumeClaim
+kind: PersistentVolume
 metadata:
-  name: {{ .Release.Name }}-postgres-pvc
-  namespace: {{ .Values.app.namespace }}
+  name: {{ .Release.Name }}-postgres-pv
+  labels:
+    type: local
 spec:
+  storageClassName: manual
+  capacity:
+    storage: {{ .Values.app.database.persistence.size }}
   accessModes:
     - ReadWriteOnce
-  resources:
-    requests:
-      storage: {{ .Values.app.database.persistence.size }}
+  hostPath:
+    path: "/mnt/data/postgres"
 ---
 apiVersion: v1
-kind: PersistentVolumeClaim
+kind: PersistentVolume
 metadata:
-  name: {{ .Release.Name }}-cache-pvc
-  namespace: {{ .Values.cache.namespace }}
+  name: {{ .Release.Name }}-redis-pv
+  labels:
+    type: local
 spec:
+  storageClassName: manual
+  capacity:
+    storage: {{ .Values.cache.persistence.size }}
   accessModes:
     - ReadWriteOnce
-  resources:
-    requests:
-      storage: {{ .Values.cache.persistence.size }}
+  hostPath:
+    path: "/mnt/data/redis"
 ---
 apiVersion: v1
-kind: PersistentVolumeClaim
+kind: PersistentVolume
 metadata:
-  name: {{ .Release.Name }}-grafana-pvc
-  namespace: {{ .Values.monitoring.namespace }}
+  name: {{ .Release.Name }}-grafana-pv
+  labels:
+    type: local
 spec:
+  storageClassName: manual
+  capacity:
+    storage: {{ .Values.monitoring.grafana.persistence.size }}
   accessModes:
     - ReadWriteOnce
-  resources:
-    requests:
-      storage: {{ .Values.monitoring.grafana.persistence.size }}
+  hostPath:
+    path: "/mnt/data/grafana"
