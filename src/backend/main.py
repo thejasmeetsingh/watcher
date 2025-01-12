@@ -10,6 +10,7 @@ from prometheus_client import Counter, Histogram, make_asgi_app
 from user.routes import router as u_router
 from watchlist.routes import router as w_router
 from content.routes import router as c_router
+from database import engine
 
 
 def get_app() -> FastAPI:
@@ -60,8 +61,12 @@ async def startup_event():
     Run DB migrations when the app server starts up.
     """
 
-    alembic_cfg = Config("alembic.ini")
-    command.upgrade(alembic_cfg, "head")
+    def run_upgrade(conn, cfg):
+        cfg.attributes["connection"] = conn
+        command.upgrade(cfg, "head")
+
+    async with engine.begin() as conn:
+        await conn.run_sync(run_upgrade, Config("alembic.ini"))
 
 
 @app.middleware("http")
