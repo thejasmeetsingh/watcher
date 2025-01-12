@@ -3,6 +3,8 @@ import time
 from fastapi import FastAPI, Request, Response, status
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi_pagination import add_pagination
+from alembic.config import Config
+from alembic import command
 from prometheus_client import Counter, Histogram, make_asgi_app
 
 from user.routes import router as u_router
@@ -50,6 +52,16 @@ http_request_duration = Histogram(
     documentation="HTTP request duration in seconds.",
     labelnames=["method", "path", "status"]
 )
+
+
+@app.on_event("startup")
+async def startup_event():
+    """
+    Run DB migrations when the app server starts up.
+    """
+
+    alembic_cfg = Config("alembic.ini")
+    command.upgrade(alembic_cfg, "head")
 
 
 @app.middleware("http")
