@@ -45,7 +45,7 @@ export default function MovieDetail() {
     }, 1000);
 
     return () => clearTimeout(timeoutID);
-  }, [authToken]);
+  }, [id, authToken]);
 
   // Fetch movie details from the API
   const initMovie = async () => {
