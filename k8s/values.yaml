@@ -1,5 +1,6 @@
 global:
   environment: production
+  rootPath: 127.0.0.1:8080
 
 app:
   namespace: app
@@ -15,13 +16,26 @@ app:
       requests:
         cpu: 500m
         memory: 512Mi
+    livenessProbe:
+      initialDelaySeconds: 10
+      periodSeconds: 10
+      httpGet:
+        path: "/health-check/"
+        port: 8000
+    readinessProbe:
+      initialDelaySeconds: 10
+      periodSeconds: 10
+      httpGet:
+        path: "/health-check/"
+        port: 8000
   database:
     image:
       repository: postgres
       tag: "16.1-alpine3.18"
     persistence:
       enabled: true
-      size: 10Gi
+      capacity: 100Mi
+      requests: 50Mi
     resources:
       limits:
         cpu: 1
@@ -37,7 +51,8 @@ cache:
     tag: "7.2.3-alpine"
   persistence:
     enabled: true
-    size: 5Gi
+    capacity: 100Mi
+    requests: 50Mi
   resources:
     limits:
       cpu: 500m
@@ -49,22 +64,27 @@ monitoring:
     image:
       repository: prom/prometheus
       tag: latest
+      pullPolicy: IfNotPresent
     resources:
       limits:
         cpu: 1
-        memory: 1Gi
+        memory: 512Mi
+    args:
+      - "--config.file=/etc/prometheus/prometheus.yml"
+      - "--web.external-url=/prometheus"
   grafana:
     image:
       repository: grafana/grafana
       tag: latest
+      pullPolicy: IfNotPresent
     resources:
       limits:
         cpu: 500m
         memory: 512Mi
     persistence:
       enabled: true
-      size: 5Gi
+      capacity: 100Mi
+      requests: 50Mi
 
 ingress:
-  enabled: true
   className: nginx

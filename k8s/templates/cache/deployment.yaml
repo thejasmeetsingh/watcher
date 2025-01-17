@@ -24,4 +24,4 @@ spec:
       volumes:
       - name: redis-data
         persistentVolumeClaim:
-          claimName: {{ .Release.Name }}-cache-pvc
+          claimName: {{ .Release.Name }}-redis-pvc

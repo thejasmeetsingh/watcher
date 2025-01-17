@@ -1,3 +1,4 @@
+# Backend deployment config
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -13,20 +14,39 @@ spec:
       labels:
         app: backend
     spec:
-      volumes:
-      - name: postgres-data
-        persistentVolumeClaim:
-          claimName: {{ .Release.Name }}-postgres-pvc
       containers:
       - name: backend
         image: "{{ .Values.app.backend.image.repository }}:{{ .Values.app.backend.image.tag }}"
+        imagePullPolicy: {{ .Values.app.backend.image.pullPolicy }}
         resources:
           {{- toYaml .Values.app.backend.resources | nindent 12 }}
+        livenessProbe:
+          {{- toYaml .Values.app.backend.livenessProbe | nindent 12 }}
+        readinessProbe:
+          {{- toYaml .Values.app.backend.readinessProbe | nindent 12 }}
         envFrom:
         - configMapRef:
             name: {{ .Release.Name }}-app-config
         - secretRef:
             name: {{ .Release.Name }}-app-secrets
+---
+# PostgreSQL DB deployment config
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}-db
+  namespace: {{ .Values.app.namespace }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: db
+  template:
+    metadata:
+      labels:
+        app: db
+    spec:
+      containers:
       - name: postgres
         image: "{{ .Values.app.database.image.repository }}:{{ .Values.app.database.image.tag }}"
         resources:
@@ -50,3 +70,8 @@ spec:
         volumeMounts:
         - name: postgres-data
           mountPath: /var/lib/postgresql/data
+
+      volumes:
+      - name: postgres-data
+        persistentVolumeClaim:
+          claimName: {{ .Release.Name }}-postgres-pvc

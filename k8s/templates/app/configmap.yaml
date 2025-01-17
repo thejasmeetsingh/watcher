@@ -4,8 +4,8 @@ metadata:
   name: {{ .Release.Name }}-app-config
   namespace: {{ .Values.app.namespace }}
 data:
-  DB_HOST: localhost
+  DB_HOST: {{ .Release.Name }}-db
   DB_PORT: "5432"
-  REDIS_HOST: {{ .Release.Name }}-cache.{{ .Values.cache.namespace }}.svc.cluster.local
+  REDIS_HOST: {{ .Release.Name }}-cache.{{ .Values.cache.namespace }}
   REDIS_PORT: "6379"
-  AUTH_TOKEN_EXP: 1440
+  AUTH_TOKEN_EXP: "1440"

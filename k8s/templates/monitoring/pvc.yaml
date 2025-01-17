@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ .Release.Name }}-grafana-pvc
+  namespace: {{ .Values.monitoring.namespace }}
+spec:
+  selector:
+    matchLabels:
+      type: local
+  resources:
+    requests:
+      storage: {{ .Values.monitoring.grafana.persistence.requests }}
+  volumeMode: Filesystem
+  accessModes:
+    - ReadWriteOnce
