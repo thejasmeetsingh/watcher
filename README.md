@@ -7,7 +7,7 @@ Discover a vibrant, ever-evolving movie database that invites you to explore an 
 
 ## Architecture
 
-![architecture](https://github.com/user-attachments/assets/d4130aee-f431-4440-973e-0f2fcf8ab83f)
+![architecture](https://github.com/user-attachments/assets/6df6de09-2d09-4d17-bb16-6dcb23b6a2e6)
 
 ## ToDo
 
