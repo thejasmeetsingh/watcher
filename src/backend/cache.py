@@ -51,7 +51,7 @@ class CustomAsyncRedisClient:
 
         return value
 
-    async def set(self, key: str | int, value: dict, expiry: int | None = None) -> None:
+    async def set(self, key: str | int, value: dict, expiry: int | None = 1800) -> None:
         """
         Set data for a given key
         """

@@ -9,3 +9,6 @@ __pycache__/
 .idea/
 .vscode/
 .git/
+.dockerignore
+Dockerfile
+docker-compose.yml
