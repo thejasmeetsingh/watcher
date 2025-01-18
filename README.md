@@ -122,9 +122,9 @@ The infrastructure is organized into three namespaces:
 
 1. Clone the project repository to your local machine.
 2. Backend
-   - Start docker and bootup minikube: `minikube start --cni=calico`
+   - Start local k8s cluster: `minikube start --cni=calico`
    - Enable ingress service on minikube: `minikube addons enable ingress`
-   - Deploy with helm: `helm install watcher src/k8s`
+   - Deploy services with helm: `helm install watcher src/k8s`
    - Access the services by running: `kubectl port-forward -n ingress-nginx services/ingress-nginx-controller 8080:80`
 3. Frontend
    - Navigate to the frontend folder.
