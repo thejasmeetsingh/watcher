@@ -24,51 +24,51 @@ Discover a vibrant, ever-evolving movie database that invites you to explore an 
 
 ## 🌟 Key Features
 
-- Movie Discovery
+### 💡 Movie Discovery
 
-  - Browse extensive movie collections
-  - Search functionality with real-time results
-  - Genre-based filtering
-  - Detailed movie information with recommendations
-  - Integration with The MovieDB API
+- Browse extensive movie collections
+- Search functionality with real-time results
+- Genre-based filtering
+- Detailed movie information with recommendations
+- Integration with The MovieDB API
 
-- User Experience
+### 🅯 User Experience
 
-  - Secure token-based authentication
-  - Personal watchlist management
-  - Favorite movies feature
-  - Track watched/unwatched movies
-  - Progress tracking for your movie journey
+- Secure token-based authentication
+- Personal watchlist management
+- Favorite movies feature
+- Track watched/unwatched movies
+- Progress tracking for your movie journey
 
-- Technical Excellence
+### 🧑‍🔧 Technical Excellence
 
-  - Redis caching layer for optimal performance
-  - Prometheus metrics integration
-  - Custom middleware for logging and monitoring
-  - Fully containerized architecture
-  - Production-grade Kubernetes deployment
+- Redis caching layer for optimal performance
+- Prometheus metrics integration
+- Custom middleware for logging and monitoring
+- Fully containerized architecture
+- Production-grade Kubernetes deployment
 
 ## 🧱 Application Structure
 
 The application is divided into three main services:
 
-- User Service
+### 🅯 User Service
 
-  - Handles authentication and user management
-  - Token-based security implementation
+- Handles authentication and user management
+- Token-based security implementation
 
-- Content Service
+### 🎦 Content Service
 
-  - Movie data management
-  - Integration with The MovieDB API
-  - Redis-backed caching layer
-  - Search and filtering capabilities
-  - Favorites management
+- Movie data management
+- Integration with The MovieDB API
+- Redis-backed caching layer
+- Search and filtering capabilities
+- Favorites management
 
-- Watchlist Service
+### 🔂 Watchlist Service
 
-  - Personal watchlist management
-  - Progress tracking
+- Personal watchlist management
+- Progress tracking
 
 Application also contains custom middlewares for Request/response logging and Prometheus Metric collection.
 
@@ -76,25 +76,25 @@ Application also contains custom middlewares for Request/response logging and Pr
 
 The infrastructure is organized into three namespaces:
 
-- App Namespace (app)
+### 📕 App Namespace (app)
 
-  - Backend application deployment
-  - PostgreSQL database
-  - Associated ConfigMaps and Secrets
-  - Persistent volume configurations
-  - Service definitions
+- Backend application deployment
+- PostgreSQL database
+- Associated ConfigMaps and Secrets
+- Persistent volume configurations
+- Service definitions
 
-- Cache Namespace (cache)
+### ⚡️ Cache Namespace (cache)
 
-  - Redis deployment
-  - Cache-specific configurations
-  - Associated services
+- Redis deployment
+- Cache-specific configurations
+- Associated services
 
-- Monitoring Namespace (monitoring)
+### 📊 Monitoring Namespace (monitoring)
 
-  - Prometheus deployment
-  - Grafana setup
-  - Monitoring configurations
+- Prometheus deployment
+- Grafana setup
+- Monitoring configurations
 
 ### Key Infrastructure Components
 
