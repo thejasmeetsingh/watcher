@@ -103,6 +103,10 @@ The infrastructure is organized into three namespaces:
 - Persistent volumes for data storage
 - Service mesh for inter-service communication
 
+## Demo 👀
+
+[![](https://github.com/user-attachments/assets/1bc2c08b-d67e-4ff5-93b3-82bf52c7498e)](https://ja3-projects.s3.ap-south-1.amazonaws.com/watcher.mp4)
+
 ## 🚀 Getting Started
 
 ### 🔴 Prerequisites
